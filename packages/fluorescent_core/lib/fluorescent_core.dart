@@ -1,3 +1,8 @@
+library fluorescent_core;
+
+export 'src/scene/camera_3d.dart';
+export 'src/scene/world_3d.dart';
+
 /// A Calculator.
 class Calculator {
   /// Returns [value] plus 1.
