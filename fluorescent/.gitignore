@@ -1,0 +1,13 @@
+# Dart/Flutter generated files
+.dart_tool/
+pubspec.lock
+build/
+.packages
+
+# OS generated files
+.DS_Store
+
+# Flutter/Android/iOS generated files
+local.properties
+Generated.xcconfig
+flutter_export_environment.sh

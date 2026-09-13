@@ -1,0 +1,13 @@
+name: fluorescent_workspace
+description: A workspace for Fluorescent packages.
+version: 0.1.0
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+workspace:
+  - packages/fluorescent_core
+  - packages/fluorescent_flame
+  - packages/fluorescent_fluorite
+  - packages/fluorescent_metal
+  - packages/fluorescent_vulkan
+  - packages/fluorescent_webgpu

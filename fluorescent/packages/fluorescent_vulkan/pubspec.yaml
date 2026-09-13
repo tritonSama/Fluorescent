@@ -1,0 +1,17 @@
+name: fluorescent_vulkan
+description: fluorescent_vulkan package for Fluorescent.
+version: 0.1.0
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.fluorescent_vulkan
+        pluginClass: FluorescentVulkanPlugin

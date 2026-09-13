@@ -1,0 +1,6 @@
+name: fluorescent_core
+description: fluorescent_core package for Fluorescent.
+version: 0.1.0
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+resolution: workspace
