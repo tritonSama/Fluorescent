@@ -58,3 +58,5 @@ examples/hybrid_2d_3d/linux/
 examples/hybrid_2d_3d/macos/
 examples/hybrid_2d_3d/web/
 examples/hybrid_2d_3d/windows/
+
+packages/fluorescent_vulkan/android/.cxx/

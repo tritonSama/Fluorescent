@@ -39,6 +39,8 @@ dependencies:
     path: ../../packages/fluorescent_core
   fluorescent_flame:
     path: ../../packages/fluorescent_flame
+  fluorescent_vulkan:
+    path: ../../packages/fluorescent_vulkan
 
 dev_dependencies:
   flutter_test:

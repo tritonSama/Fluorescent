@@ -17,6 +17,9 @@ extern "C" {
 // Initialize the Vulkan engine. Returns true on success.
 EXPORT bool init_vulkan();
 
+// Initialize the Vulkan device. Returns true on success.
+EXPORT bool init_vulkan_device();
+
 // Renders a frame.
 EXPORT void render_frame();
 
