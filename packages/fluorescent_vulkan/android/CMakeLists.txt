@@ -3,8 +3,11 @@ project(fluorescent_vulkan)
 
 set(CMAKE_CXX_STANDARD 17)
 
+include_directories(../src/third_party)
+
 add_library(fluorescent_vulkan SHARED
     ../src/fluorescent_vulkan.cpp
+    ../src/model_loader.cpp
     cpp/vulkan_renderer.cpp
 )
 

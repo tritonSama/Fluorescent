@@ -36,6 +36,8 @@ bool init_vulkan() {
     extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #ifdef __ANDROID__
     extensions.push_back("VK_KHR_android_surface");
+    // We need external memory capabilities to bind Android Hardware Buffers
+    extensions.push_back(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME);
 #endif
 
     VkInstanceCreateInfo createInfo{};
@@ -105,12 +107,25 @@ bool init_vulkan_device() {
 
     VkPhysicalDeviceFeatures deviceFeatures{};
 
+    std::vector<const char*> deviceExtensions;
+#ifdef __ANDROID__
+    // Required to interact with Android Hardware Buffers
+    deviceExtensions.push_back("VK_ANDROID_external_memory_android_hardware_buffer");
+    deviceExtensions.push_back(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME);
+    deviceExtensions.push_back(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME);
+    deviceExtensions.push_back(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME);
+    deviceExtensions.push_back(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME);
+    deviceExtensions.push_back(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME);
+    deviceExtensions.push_back(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME);
+#endif
+
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.pQueueCreateInfos = &queueCreateInfo;
     createInfo.queueCreateInfoCount = 1;
     createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = 0;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     VkResult result = vkCreateDevice(g_physical_device, &createInfo, nullptr, &g_device);
     if (result != VK_SUCCESS) {
@@ -125,7 +140,11 @@ bool init_vulkan_device() {
 }
 
 void render_frame() {
-    // Stub implementation for rendering a frame
+    // Basic stub demonstrating where the render command buffer recording would go
+    if (g_device == VK_NULL_HANDLE) return;
+    // ... record commands to render a triangle ...
+    // ... submit to g_graphics_queue ...
+    ALOGI("Render frame executed.");
 }
 
 void cleanup_vulkan() {
@@ -138,4 +157,23 @@ void cleanup_vulkan() {
         g_instance = VK_NULL_HANDLE;
     }
     ALOGI("Fluorescent Vulkan: Cleaned up.");
+}
+
+VkDevice get_vulkan_device() {
+    return g_device;
+}
+
+VkPhysicalDevice get_vulkan_physical_device() {
+    return g_physical_device;
+}
+
+bool init_graphics_pipeline() {
+    if (g_device == VK_NULL_HANDLE) {
+        ALOGE("Cannot initialize pipeline without Vulkan device.");
+        return false;
+    }
+    // In a real implementation: load shaders, create layout, renderpass, and pipeline object
+    // Here we'd compile simple hardcoded triangle shaders.
+    ALOGI("Vulkan Graphics Pipeline initialized (stub).");
+    return true;
 }
