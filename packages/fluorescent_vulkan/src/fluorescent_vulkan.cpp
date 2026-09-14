@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <iostream>
 #include <vector>
+#include <cstring>
 #include "shaders.h"
 
 #ifdef __ANDROID__
@@ -22,11 +23,65 @@ static VkQueue g_graphics_queue = VK_NULL_HANDLE;
 
 static VkShaderModule g_vertex_shader = VK_NULL_HANDLE;
 static VkShaderModule g_fragment_shader = VK_NULL_HANDLE;
+static VkDescriptorSetLayout g_descriptor_set_layout = VK_NULL_HANDLE;
 static VkPipelineLayout g_pipeline_layout = VK_NULL_HANDLE;
 static VkPipeline g_graphics_pipeline = VK_NULL_HANDLE;
 static VkRenderPass g_render_pass = VK_NULL_HANDLE;
 static VkCommandPool g_command_pool = VK_NULL_HANDLE;
-static VkCommandBuffer g_command_buffer = VK_NULL_HANDLE;
+static VkDescriptorPool g_descriptor_pool = VK_NULL_HANDLE;
+static VkDescriptorSet g_descriptor_set = VK_NULL_HANDLE;
+
+// UBO State
+static VkBuffer g_uniform_buffer = VK_NULL_HANDLE;
+static VkDeviceMemory g_uniform_buffer_memory = VK_NULL_HANDLE;
+static void* g_uniform_buffer_mapped = nullptr;
+
+static float g_view_proj_matrix[16] = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+};
+
+uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(g_physical_device, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+    ALOGE("failed to find suitable memory type!");
+    return 0;
+}
+
+void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(g_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        ALOGE("failed to create buffer!");
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(g_device, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if (vkAllocateMemory(g_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        ALOGE("failed to allocate buffer memory!");
+    }
+
+    vkBindBufferMemory(g_device, buffer, bufferMemory, 0);
+}
+
 
 bool init_vulkan() {
     if (g_instance != VK_NULL_HANDLE) {
@@ -139,17 +194,6 @@ bool init_vulkan_device() {
         return false;
     }
 
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = g_command_pool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
-
-    if (vkAllocateCommandBuffers(g_device, &allocInfo, &g_command_buffer) != VK_SUCCESS) {
-        ALOGE("Failed to allocate command buffers!");
-        return false;
-    }
-
     ALOGI("Vulkan Logical Device and Graphics Queue created successfully.");
     return true;
 }
@@ -174,6 +218,75 @@ bool init_graphics_pipeline() {
         return false;
     }
 
+    // --- UBO SETUP ---
+    VkDeviceSize bufferSize = sizeof(float) * 16;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, g_uniform_buffer, g_uniform_buffer_memory);
+    vkMapMemory(g_device, g_uniform_buffer_memory, 0, bufferSize, 0, &g_uniform_buffer_mapped);
+    memcpy(g_uniform_buffer_mapped, g_view_proj_matrix, bufferSize);
+
+    // --- DESCRIPTOR SET LAYOUT ---
+    VkDescriptorSetLayoutBinding uboLayoutBinding{};
+    uboLayoutBinding.binding = 0;
+    uboLayoutBinding.descriptorCount = 1;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.pImmutableSamplers = nullptr;
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &uboLayoutBinding;
+
+    if (vkCreateDescriptorSetLayout(g_device, &layoutInfo, nullptr, &g_descriptor_set_layout) != VK_SUCCESS) {
+        ALOGE("Failed to create descriptor set layout!");
+        return false;
+    }
+
+    // --- DESCRIPTOR POOL ---
+    VkDescriptorPoolSize poolSize{};
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes = &poolSize;
+    poolInfo.maxSets = 1;
+
+    if (vkCreateDescriptorPool(g_device, &poolInfo, nullptr, &g_descriptor_pool) != VK_SUCCESS) {
+        ALOGE("Failed to create descriptor pool!");
+        return false;
+    }
+
+    // --- DESCRIPTOR SETS ---
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = g_descriptor_pool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts = &g_descriptor_set_layout;
+
+    if (vkAllocateDescriptorSets(g_device, &allocInfo, &g_descriptor_set) != VK_SUCCESS) {
+        ALOGE("Failed to allocate descriptor sets!");
+        return false;
+    }
+
+    VkDescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = g_uniform_buffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(float) * 16;
+
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.dstSet = g_descriptor_set;
+    descriptorWrite.dstBinding = 0;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    vkUpdateDescriptorSets(g_device, 1, &descriptorWrite, 0, nullptr);
+
+    // --- SHADER SETUP ---
     g_vertex_shader = create_shader_module(VERTEX_SHADER, sizeof(VERTEX_SHADER));
     g_fragment_shader = create_shader_module(FRAGMENT_SHADER, sizeof(FRAGMENT_SHADER));
 
@@ -193,25 +306,60 @@ bool init_graphics_pipeline() {
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputInfo.vertexBindingDescriptionCount = 0;
+    vertexInputInfo.pVertexBindingDescriptions = nullptr;
+    vertexInputInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    // Viewport and scissor are usually dynamic state, but defining them statically here
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = 100.0f;  // These will be overridden by dynamic state
+    viewport.height = 100.0f; // if dynamic state is enabled, but we leave them hardcoded for now
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = {100, 100};
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;
+    viewportState.pViewports = &viewport;
     viewportState.scissorCount = 1;
+    viewportState.pScissors = &scissor;
+
+    // Use dynamic states for viewport and scissor so we don't have to recreate the pipeline
+    // every time the AHB resizes
+    std::vector<VkDynamicState> dynamicStates = {
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR
+    };
+
+    VkPipelineDynamicStateCreateInfo dynamicState{};
+    dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+    dynamicState.pDynamicStates = dynamicStates.data();
 
     VkPipelineRasterizationStateCreateInfo rasterizer{};
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = VK_CULL_MODE_NONE; // No culling for simple triangle
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.sampleShadingEnable = VK_FALSE;
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment{};
@@ -220,11 +368,14 @@ bool init_graphics_pipeline() {
 
     VkPipelineColorBlendStateCreateInfo colorBlending{};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &g_descriptor_set_layout;
 
     if (vkCreatePipelineLayout(g_device, &pipelineLayoutInfo, nullptr, &g_pipeline_layout) != VK_SUCCESS) {
         ALOGE("Failed to create pipeline layout!");
@@ -262,51 +413,60 @@ bool init_graphics_pipeline() {
         return false;
     }
 
-    // Usually you would call vkCreateGraphicsPipelines here, but to avoid immense boilerplate
-    // for dynamic viewports/framebuffers in this stub, we acknowledge the layout and pass are ready.
-    ALOGI("Vulkan Graphics Pipeline Layout and Render Pass initialized.");
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = &dynamicState;
+    pipelineInfo.layout = g_pipeline_layout;
+    pipelineInfo.renderPass = g_render_pass;
+    pipelineInfo.subpass = 0;
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+    if (vkCreateGraphicsPipelines(g_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &g_graphics_pipeline) != VK_SUCCESS) {
+        ALOGE("Failed to create graphics pipeline!");
+        return false;
+    }
+
+    ALOGI("Vulkan Graphics Pipeline, Layout, and Render Pass initialized.");
     return true;
 }
 
+extern "C" void update_camera(const float* view_proj_matrix) {
+    if (view_proj_matrix != nullptr) {
+        for (int i = 0; i < 16; ++i) {
+            g_view_proj_matrix[i] = view_proj_matrix[i];
+        }
+        if (g_uniform_buffer_mapped != nullptr) {
+            memcpy(g_uniform_buffer_mapped, g_view_proj_matrix, sizeof(float) * 16);
+        }
+        ALOGI("Camera View-Projection Matrix updated and written to UBO.");
+    }
+}
+
 void render_frame() {
-    if (g_device == VK_NULL_HANDLE || g_command_buffer == VK_NULL_HANDLE) return;
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    if (vkBeginCommandBuffer(g_command_buffer, &beginInfo) != VK_SUCCESS) {
-        ALOGE("Failed to begin recording command buffer!");
-        return;
-    }
-
-    // In a real scenario we'd bind the framebuffer from the AHardwareBuffer here
-    // vkCmdBeginRenderPass(g_command_buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    // vkCmdBindPipeline(g_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, g_graphics_pipeline);
-    // vkCmdDraw(g_command_buffer, 3, 1, 0, 0);
-    // vkCmdEndRenderPass(g_command_buffer);
-
-    if (vkEndCommandBuffer(g_command_buffer) != VK_SUCCESS) {
-        ALOGE("Failed to record command buffer!");
-        return;
-    }
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &g_command_buffer;
-
-    vkQueueSubmit(g_graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(g_graphics_queue);
-
-    ALOGI("Render frame executed.");
+    // This is currently left as a stub because vkCmdDraw needs to be wrapped in a render pass
+    // targeting a specific VkFramebuffer. We moved the render_frame logic to vulkan_renderer.cpp
+    // where it has access to the bound AHardwareBuffer and its associated Framebuffer.
 }
 
 void cleanup_vulkan() {
     if (g_device != VK_NULL_HANDLE) {
+        vkDestroyPipeline(g_device, g_graphics_pipeline, nullptr);
         vkDestroyRenderPass(g_device, g_render_pass, nullptr);
         vkDestroyPipelineLayout(g_device, g_pipeline_layout, nullptr);
         vkDestroyShaderModule(g_device, g_fragment_shader, nullptr);
         vkDestroyShaderModule(g_device, g_vertex_shader, nullptr);
+        vkDestroyDescriptorPool(g_device, g_descriptor_pool, nullptr);
+        vkDestroyDescriptorSetLayout(g_device, g_descriptor_set_layout, nullptr);
+        vkDestroyBuffer(g_device, g_uniform_buffer, nullptr);
+        vkFreeMemory(g_device, g_uniform_buffer_memory, nullptr);
         vkDestroyCommandPool(g_device, g_command_pool, nullptr);
         vkDestroyDevice(g_device, nullptr);
         g_device = VK_NULL_HANDLE;
@@ -318,27 +478,11 @@ void cleanup_vulkan() {
     ALOGI("Fluorescent Vulkan: Cleaned up.");
 }
 
-VkDevice get_vulkan_device() {
-    return g_device;
-}
-
-VkPhysicalDevice get_vulkan_physical_device() {
-    return g_physical_device;
-}
-
-static float g_view_proj_matrix[16] = {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
-};
-
-extern "C" void update_camera(const float* view_proj_matrix) {
-    if (view_proj_matrix != nullptr) {
-        for (int i = 0; i < 16; ++i) {
-            g_view_proj_matrix[i] = view_proj_matrix[i];
-        }
-        // In a real pipeline, this would copy data to a Uniform Buffer Object (UBO)
-        ALOGI("Camera View-Projection Matrix updated.");
-    }
-}
+VkDevice get_vulkan_device() { return g_device; }
+VkPhysicalDevice get_vulkan_physical_device() { return g_physical_device; }
+VkRenderPass get_vulkan_render_pass() { return g_render_pass; }
+VkPipeline get_vulkan_graphics_pipeline() { return g_graphics_pipeline; }
+VkPipelineLayout get_vulkan_pipeline_layout() { return g_pipeline_layout; }
+VkCommandPool get_vulkan_command_pool() { return g_command_pool; }
+VkQueue get_vulkan_graphics_queue() { return g_graphics_queue; }
+VkDescriptorSet get_vulkan_descriptor_set() { return g_descriptor_set; }

@@ -29,6 +29,9 @@ EXPORT void render_frame();
 // Clean up resources.
 EXPORT void cleanup_vulkan();
 
+// Updates the view-projection matrix from the ECS camera
+EXPORT void update_camera(const float* view_proj_matrix);
+
 #ifdef __cplusplus
 }
 #endif
@@ -38,9 +41,14 @@ EXPORT void cleanup_vulkan();
 #include <vulkan/vulkan.h>
 VkDevice get_vulkan_device();
 VkPhysicalDevice get_vulkan_physical_device();
+
+// Returns the global render pass created by init_graphics_pipeline()
+VkRenderPass get_vulkan_render_pass();
+VkPipeline get_vulkan_graphics_pipeline();
+VkPipelineLayout get_vulkan_pipeline_layout();
+VkCommandPool get_vulkan_command_pool();
+VkQueue get_vulkan_graphics_queue();
+VkDescriptorSet get_vulkan_descriptor_set();
 #endif
 
 #endif // FLUORESCENT_VULKAN_H
-
-// Updates the view-projection matrix from the ECS camera
-EXPORT void update_camera(const float* view_proj_matrix);

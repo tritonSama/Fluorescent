@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:developer' as developer;
+import 'dart:js_interop';
 
-// Note: In a real flutter web plugin, we would use dart:html or package:web
-// to interact with the DOM and JS. We use a stub interface here.
+@JS('window.fluorescentBridge.initCanvas')
+external JSPromise _initCanvas(JSString canvasId);
 
 /// Interface for interacting with the Fluorescent WebGPU JavaScript bridge.
 class FluorescentWebGPU {
@@ -11,13 +11,19 @@ class FluorescentWebGPU {
   /// Initializes the WebGPU bridge on the given canvas ID.
   /// Resolves to true if WebGPU was successfully initialized.
   static Future<bool> initCanvas(String canvasId) async {
-    // Stub implementation.
-    // In a real implementation this would call `window.fluorescentBridge.initCanvas(canvasId)`
-    // via JS interop.
-    developer.log('FluorescentWebGPU: Initiating JS interop for canvas: $canvasId');
+    try {
+      final jsString = canvasId.toJS;
+      final promise = _initCanvas(jsString);
+      // Wait for the JS promise to resolve
+      final result = await promise.toDart;
 
-    // Simulate async JS call
-    await Future.delayed(const Duration(milliseconds: 100));
-    return true;
+      if (result != null) {
+        return (result as JSBoolean).toDart;
+      }
+      return false;
+    } catch (e) {
+      // Safely catch errors
+      return false;
+    }
   }
 }
