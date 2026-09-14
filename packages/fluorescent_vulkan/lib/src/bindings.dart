@@ -15,6 +15,9 @@ typedef CleanupVulkanDart = void Function();
 typedef LoadGltfModelC = ffi.Bool Function(ffi.Pointer<Utf8> filepath);
 typedef LoadGltfModelDart = bool Function(ffi.Pointer<Utf8> filepath);
 
+typedef UpdateCameraC = ffi.Void Function(ffi.Pointer<ffi.Float> viewProjMatrix);
+typedef UpdateCameraDart = void Function(ffi.Pointer<ffi.Float> viewProjMatrix);
+
 /// A wrapper class for the Vulkan native library.
 class VulkanBindings {
   late final ffi.DynamicLibrary _lib;
@@ -22,6 +25,7 @@ class VulkanBindings {
   late final RenderFrameDart renderFrame;
   late final CleanupVulkanDart cleanupVulkan;
   late final LoadGltfModelDart loadGltfModel;
+  late final UpdateCameraDart updateCamera;
 
   VulkanBindings() {
     _loadLibrary();
@@ -43,6 +47,7 @@ class VulkanBindings {
     renderFrame = _lib.lookupFunction<RenderFrameC, RenderFrameDart>('render_frame');
     cleanupVulkan = _lib.lookupFunction<CleanupVulkanC, CleanupVulkanDart>('cleanup_vulkan');
     loadGltfModel = _lib.lookupFunction<LoadGltfModelC, LoadGltfModelDart>('load_gltf_model');
+    updateCamera = _lib.lookupFunction<UpdateCameraC, UpdateCameraDart>('update_camera');
   }
 
   /// Helper method to load a glTF model from a string path.

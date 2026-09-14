@@ -41,3 +41,6 @@ VkPhysicalDevice get_vulkan_physical_device();
 #endif
 
 #endif // FLUORESCENT_VULKAN_H
+
+// Updates the view-projection matrix from the ECS camera
+EXPORT void update_camera(const float* view_proj_matrix);
