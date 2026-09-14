@@ -31,3 +31,15 @@ Before committing any changes, ensure that all tests pass and `flutter analyze` 
 - **Null Safety**: All Dart code must be fully null-safe and target Dart SDK 3.4.0 or higher.
 - **Dependencies**: For local packages, use path dependencies in `pubspec.yaml` (e.g., `path: ../../packages/fluorescent_core`).
 - **Formatting**: Always format your Dart code. (Note: Flutter's default `dart format` is highly encouraged before submission).
+
+## Usage Overview
+Fluorescent integrates deeply with Flame to provide a hybrid 2D/3D development experience. Developers do not replace their `FlameGame`; instead, they add a `FluorescentViewport` component to render 3D scenes via native backends (Vulkan/Metal/WebGPU) into Flutter's zero-copy texture pipeline.
+
+### Core Components
+* **`FluorescentViewport`**: A Flame `PositionComponent` that acts as the bridge, accepting a native texture ID and rendering the 3D output alongside standard 2D Flame components.
+* **Zero-copy Texture Pipeline**: The native backends (e.g., Vulkan via Android NDK `AHardwareBuffer`) render directly into memory that Flutter composites via the `Texture` widget, avoiding expensive CPU readbacks.
+
+## External Tooling
+The `tools/` directory contains helper scripts to streamline 3D asset generation and scene design:
+* **Blender Sync (`tools/blender_sync/`)**: A Blender Python add-on that connects via WebSockets to the local Fluorescent engine. When a developer modifies an object in Blender, the updates (location, rotation, scale) are streamed live into the running Flutter app without needing a rebuild.
+* **Higgsfield Bridge (`tools/higgsfield_bridge/`)**: A Python API wrapper for Higgsfield AI. It allows the programmatic generation of 3D meshes (e.g., `.gltf`) and seamless textures via HTTP requests, which can then be automatically ingested into the Fluorescent asset pipeline.
