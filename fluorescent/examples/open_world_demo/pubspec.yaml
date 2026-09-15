@@ -1,0 +1,15 @@
+name: open_world_demo
+description: Open world demo for Fluorescent.
+version: 0.1.0
+publish_to: 'none'
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: ^1.10.0
+  fluorescent_flame:
+    path: ../../packages/fluorescent_flame

@@ -11,3 +11,4 @@ workspace:
   - packages/fluorescent_metal
   - packages/fluorescent_vulkan
   - packages/fluorescent_webgpu
+  - examples/open_world_demo
