@@ -3,3 +3,6 @@ name: fluorescent
 packages:
   - packages/*
   - examples/*
+
+ide:
+  intellij: false
