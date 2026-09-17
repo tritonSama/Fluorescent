@@ -1,5 +1,10 @@
 library fluorescent_core;
 
-export 'src/rendering/rendering_server.dart';
-export 'src/scene/entity.dart';
-export 'src/scene/component.dart';
+export 'src/scene/camera_3d.dart';
+export 'src/scene/world_3d.dart';
+
+/// A Calculator.
+class Calculator {
+  /// Returns [value] plus 1.
+  int addOne(int value) => value + 1;
+}

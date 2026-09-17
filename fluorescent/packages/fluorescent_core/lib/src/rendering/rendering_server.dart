@@ -6,7 +6,7 @@ abstract class RenderingServer {
 
   /// Submits a draw command to the renderer.
   void submitDrawCall();
-
+  
   /// Flushes the render queue to the target texture.
   void renderToTexture(int textureId);
 }

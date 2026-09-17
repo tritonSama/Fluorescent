@@ -1,13 +1,19 @@
-# Dart/Flutter generated files
-.dart_tool/
+**/.dart_tool/
+**/build/
+**/*.iml
+**/.symlinks/
+.idea/
+*.log
+*.lock
+**/*.lock
 pubspec.lock
-build/
-.packages
+**/.cxx/
+**/cmake-build-debug/
+**/pubspec_overrides.yaml
+**/xcuserdata/
+**/.DS_Store
+**/DerivedData/
+**/Pods/
 
-# OS generated files
-.DS_Store
+packages/fluorescent_ecs/example/
 
-# Flutter/Android/iOS generated files
-local.properties
-Generated.xcconfig
-flutter_export_environment.sh

@@ -1,10 +1,21 @@
 name: fluorescent_flame
-description: fluorescent_flame package for Fluorescent.
-version: 0.1.0
+description: "A new Flutter package project."
+version: 0.0.1
+homepage:
+publish_to: 'none'
+
 environment:
-  sdk: ">=3.5.0 <4.0.0"
-resolution: workspace
+  sdk: ^3.4.0
+  flutter: ">=1.17.0"
+
 dependencies:
-  flame: ^1.10.0
+  flame: ^1.38.2
+  fluorescent_core:
+    path: ../fluorescent_core
   flutter:
     sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
