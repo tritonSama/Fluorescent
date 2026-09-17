@@ -1,5 +1,8 @@
 name: fluorescent
 
 packages:
-  - "packages/**"
-  - "examples/**"
+  - packages/*
+  - examples/*
+
+ide:
+  intellij: false

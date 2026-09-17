@@ -34,7 +34,7 @@ void main() {
 
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);
-
+      
       viewport.render(canvas);
 
       final picture = recorder.endRecording();
