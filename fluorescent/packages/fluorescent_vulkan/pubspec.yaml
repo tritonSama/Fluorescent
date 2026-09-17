@@ -8,10 +8,3 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
-
-flutter:
-  plugin:
-    platforms:
-      android:
-        package: com.example.fluorescent_vulkan
-        pluginClass: FluorescentVulkanPlugin

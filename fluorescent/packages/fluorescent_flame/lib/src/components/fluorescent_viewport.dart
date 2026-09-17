@@ -1,4 +1,5 @@
 import 'package:flame/components.dart';
+import 'package:flame/extensions.dart';
 import 'package:flutter/rendering.dart';
 
 /// A stub component for rendering 3D viewports in Flame.
