@@ -1,0 +1,3 @@
+rust_root: "fluorite_core"
+rust_input: "src/api"
+dart_output: "fluorite_editor/lib/src/rust"

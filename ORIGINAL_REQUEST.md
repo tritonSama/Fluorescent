@@ -32,3 +32,33 @@ Integrate `Naga` or `SPIRV-Cross` via FFI into the asset pipeline to automatical
 - [ ] The `asset_pipeline` CLI tool successfully compiles a test `.gltf` and `.wgsl` file into a binary format.
 - [ ] ECS benchmark test successfully spawns and iterates over 10,000 entities using TypedData without throwing memory errors.
 - [ ] Resource manager successfully loads a mock texture, increments its reference count, and frees it when destroyed.
+
+## 2026-09-17T16:50:21Z
+
+# Teamwork Project Prompt
+
+> Requested team: Full team (for concurrent multi-agent execution)
+
+Implement Phase 1 of the Fluorite AAA Engine: The Rust Core Foundation, Memory Allocators, and the Zero-Copy FFI Bridge to Flutter.
+
+Working directory: C:\Users\blue-\projects\Fluorite
+Integrity mode: demo
+
+## Requirements
+
+### R1. Rust Core & Memory Allocators
+Initialize a new Rust library project (`fluorite_core`). Implement custom memory allocators (e.g., a basic Arena Allocator or Frame Allocator) to ensure zero-fragmentation allocation for game loops.
+
+### R2. Zero-Copy FFI Bridge
+Use the `flutter_rust_bridge` package to automatically generate safe, zero-copy FFI bindings between the Rust core and Dart. Ensure the architecture supports sharing large continuous memory buffers without serialization overhead.
+
+### R3. Flutter Editor Integration
+Initialize a new Flutter desktop project (`fluorite_editor`). Integrate the generated `flutter_rust_bridge` bindings. Build a basic Editor UI with a "Start Engine" button that allocates memory in Rust and reads the status back into Flutter.
+
+## Acceptance Criteria
+
+### Verification
+- [ ] `cargo test` passes successfully for the custom memory allocators in Rust.
+- [ ] Automated tests confirm `flutter_rust_bridge` generation completes without errors.
+- [ ] A Flutter integration test verifies that Dart can successfully call a Rust FFI function to allocate 1MB of memory and read a value from it without crashing.
+- [ ] The Flutter UI successfully launches on Desktop and communicates with the compiled Rust binary.

@@ -1,0 +1,23 @@
+[package]
+name = "fluorite_e2e_tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[test]]
+name = "tier1_feature_coverage"
+path = "tier1_feature_coverage_test.rs"
+
+[[test]]
+name = "tier2_boundary_corner"
+path = "tier2_boundary_corner_test.rs"
+
+[[test]]
+name = "tier3_cross_feature"
+path = "tier3_cross_feature_test.rs"
+
+[[test]]
+name = "tier4_real_world_scenarios"
+path = "tier4_real_world_scenarios_test.rs"
+
+[dependencies]
