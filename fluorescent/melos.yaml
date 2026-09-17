@@ -6,3 +6,8 @@ packages:
 
 ide:
   intellij: false
+
+scripts:
+  test:
+    exec: flutter test
+    description: Run all Flutter tests in packages.
