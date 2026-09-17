@@ -31,12 +31,12 @@ void main() {
         position: Vector2.zero(),
         size: Vector2(100, 200),
       );
-      
+
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);
       
       viewport.render(canvas);
-      
+
       final picture = recorder.endRecording();
       expect(picture, isNotNull);
     });
