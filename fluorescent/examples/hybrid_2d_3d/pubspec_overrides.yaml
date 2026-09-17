@@ -1,0 +1,8 @@
+# melos_managed_dependency_overrides: fluorescent_core,fluorescent_flame,fluorescent_vulkan
+dependency_overrides:
+  fluorescent_core:
+    path: ..\\..\\packages\\fluorescent_core
+  fluorescent_flame:
+    path: ..\\..\\packages\\fluorescent_flame
+  fluorescent_vulkan:
+    path: ..\\..\\packages\\fluorescent_vulkan
