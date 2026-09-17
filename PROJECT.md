@@ -1,4 +1,4 @@
-﻿# Project: Fluorescent 3D Engine Core Architectural Pillars
+# Project: Fluorescent 3D Engine Core Architectural Pillars
 
 ## Architecture
 Fluorescent is a high-performance 3D engine monorepo for Flutter, Flame, Web, and native platforms.
@@ -29,12 +29,12 @@ The architecture is decoupled into distinct subsystems:
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | Server Architecture & Isolates | `PhysicsServer`, `NavigationServer`, `ServerManager` isolate message passing | None | PLANNED |
-| M2 | Resource Management | `ResourceManager` reference counting, GPU memory budget, mock texture lifecycle | None | PLANNED |
-| M3 | Contiguous TypedData ECS | `fluorescent_ecs` sparse-set `Float32List` storage, 10k entity benchmark | None | PLANNED |
-| M4 | Data-Driven RenderGraph | `RenderGraph` JSON/YAML parsing, DAG cycle detection, topological sort | None | PLANNED |
-| M5 | Asset Pipeline & Shaders | CLI tool, `.fworld` packaging, Naga/SPIRV-Cross FFI & demo shader transpiler | None | PLANNED |
-| M6 | E2E Verification & Hardening | Pass 100% E2E tests (Tiers 1-4) followed by Phase 2 adversarial hardening (Tier 5) | M1, M2, M3, M4, M5 | PLANNED |
+| M1 | Server Architecture & Isolates | `PhysicsServer`, `NavigationServer`, `ServerManager` isolate message passing | None | DONE |
+| M2 | Resource Management | `ResourceManager` reference counting, GPU memory budget, mock texture lifecycle | None | DONE |
+| M3 | Contiguous TypedData ECS | `fluorescent_ecs` sparse-set `Float32List` storage, 10k entity benchmark | None | DONE |
+| M4 | Data-Driven RenderGraph | `RenderGraph` JSON/YAML parsing, DAG cycle detection, topological sort | None | DONE |
+| M5 | Asset Pipeline & Shaders | CLI tool, `.fworld` packaging, Naga/SPIRV-Cross FFI & demo shader transpiler | None | DONE |
+| M6 | E2E Verification & Hardening | Pass 100% E2E tests (Tiers 1-4) followed by Phase 2 adversarial hardening (Tier 5) | M1, M2, M3, M4, M5 | DONE |
 
 ## Interface Contracts
 

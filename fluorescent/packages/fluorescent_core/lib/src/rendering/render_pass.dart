@@ -33,6 +33,7 @@ enum AttachmentType {
 /// Supported GPU texture formats.
 enum TextureFormat {
   rgba8unorm,
+  bgra8unorm,
   rgba16float,
   depth24plus,
   depth32float;
@@ -42,6 +43,9 @@ enum TextureFormat {
       case 'rgba8unorm':
       case 'rgba8_unorm':
         return TextureFormat.rgba8unorm;
+      case 'bgra8unorm':
+      case 'bgra8_unorm':
+        return TextureFormat.bgra8unorm;
       case 'rgba16float':
       case 'rgba16_float':
         return TextureFormat.rgba16float;
@@ -103,6 +107,11 @@ enum PassType {
   static PassType fromString(String value) {
     switch (value.toLowerCase()) {
       case 'raster':
+      case 'geometry':
+      case 'shadow':
+      case 'lighting':
+      case 'post_process':
+      case 'postprocess':
         return PassType.raster;
       case 'compute':
         return PassType.compute;

@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import '../../packages/fluorescent_ecs/lib/fluorescent_ecs.dart';
 import 'e2e_test_harness.dart';
 
@@ -48,7 +47,7 @@ void defineTests() {
         final x = world.transforms.getX(entity);
         final y = world.transforms.getY(entity);
         final z = world.transforms.getZ(entity);
-        final sx = world.transforms.getScaleX(entity);
+        final sx = world.transforms.getSx(entity);
 
         expect(x, closeTo(idx * 1.0, 0.001));
         expect(y, closeTo(30.0, 0.001));
@@ -126,8 +125,8 @@ void defineTests() {
 
       // Verify raw Float32List buffer directly
       final buffer = storage.data;
-      final dense0 = storage.sparseSet.dense[0];
-      final dense1 = storage.sparseSet.dense[1];
+      final dense0 = storage.dense[0];
+      final dense1 = storage.dense[1];
 
       expect(dense0, equals(10));
       expect(dense1, equals(20));

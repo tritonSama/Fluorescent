@@ -1,5 +1,4 @@
 import '../../packages/fluorescent_core/lib/src/rendering/render_graph.dart';
-import '../../packages/fluorescent_core/lib/src/rendering/render_graph_schema.dart';
 import '../../packages/fluorescent_core/lib/src/rendering/render_pass.dart';
 import 'e2e_test_harness.dart';
 

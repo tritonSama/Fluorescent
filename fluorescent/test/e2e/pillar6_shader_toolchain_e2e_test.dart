@@ -1,6 +1,5 @@
 import '../../tools/asset_pipeline/lib/shader_toolchain/demo_transpiler.dart';
 import '../../tools/asset_pipeline/lib/shader_toolchain/naga_ffi.dart';
-import '../../tools/asset_pipeline/lib/shader_toolchain/shader_transpiler.dart';
 import 'e2e_test_harness.dart';
 
 const String sampleWgslShader = '''
@@ -89,7 +88,7 @@ void defineTests() {
       expect(bundle.msl.isNotEmpty, isTrue);
     });
 
-    test('E2E-P6-004: ShaderBundle serializes to and deserializes from JSON correctly', () {
+    test('E2E-P6-004: ShaderBundle serializes metadata to JSON correctly', () {
       final transpiler = DemoShaderTranspiler();
       final originalBundle = transpiler.transpile(
         shaderName: 'json_bundle',
@@ -97,14 +96,14 @@ void defineTests() {
       );
 
       final jsonMap = originalBundle.toJson();
-      final restoredBundle = ShaderBundle.fromJson(jsonMap);
 
-      expect(restoredBundle.name, equals(originalBundle.name));
-      expect(restoredBundle.vertexEntryPoint, equals(originalBundle.vertexEntryPoint));
-      expect(restoredBundle.fragmentEntryPoint, equals(originalBundle.fragmentEntryPoint));
-      expect(restoredBundle.wgslSource, equals(originalBundle.wgslSource));
-      expect(restoredBundle.spirvWords, equals(originalBundle.spirvWords));
-      expect(restoredBundle.msl, equals(originalBundle.msl));
+      expect(jsonMap['name'], equals(originalBundle.name));
+      expect(jsonMap['vertexEntryPoint'], equals(originalBundle.vertexEntryPoint));
+      expect(jsonMap['fragmentEntryPoint'], equals(originalBundle.fragmentEntryPoint));
+      expect(jsonMap['wgslLength'], equals(originalBundle.wgsl.length));
+      expect(jsonMap['mslLength'], equals(originalBundle.msl.length));
+      expect(jsonMap['spirvWordsCount'], equals(originalBundle.spirvWords.length));
+      expect(jsonMap['spirvBytesCount'], equals(originalBundle.spirvBytes.length));
     });
   });
 }

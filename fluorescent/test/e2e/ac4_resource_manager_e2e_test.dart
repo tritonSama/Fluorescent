@@ -17,11 +17,13 @@ void defineTests() {
       expect(resourceManager.cachedResourceCount, equals(0));
 
       // 1. Load mock texture
+      bool onDisposeCallbackFired = false;
       final tex1 = await resourceManager.loadMockTexture(
         'mock_albedo',
         width: 512,
         height: 512,
         format: 'rgba8unorm',
+        onDispose: (_) => onDisposeCallbackFired = true,
       );
 
       // Verify initial ref count and memory tracking (512x512x4 = 1,048,576 bytes)
@@ -47,9 +49,6 @@ void defineTests() {
       expect(resourceManager.isCached('mock_albedo'), isTrue);
 
       // 4. Second release brings refCount to 0 -> destroys and frees GPU memory
-      bool onDisposeCallbackFired = false;
-      tex1.onDispose = (_) => onDisposeCallbackFired = true;
-
       resourceManager.release(tex2);
       expect(tex1.refCount, equals(0));
       expect(tex1.isDisposed, isTrue);
@@ -97,12 +96,13 @@ void defineTests() {
 
       // Create material and retain textures inside it
       final material = resourceManager.acquire<MaterialResource>('pbr_material', () {
-        diffuse.retain();
-        normal.retain();
         return MaterialResource(
           id: 'pbr_material',
-          diffuseTexture: diffuse,
-          normalTexture: normal,
+          shaderId: 'pbr_shader',
+          textures: {
+            'diffuse': diffuse,
+            'normal': normal,
+          },
         );
       });
 
