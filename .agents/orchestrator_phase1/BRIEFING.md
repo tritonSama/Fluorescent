@@ -1,4 +1,4 @@
-# BRIEFING — 2026-09-17T17:39:25Z
+# BRIEFING — 2026-09-17T20:02:00Z
 
 ## Mission
 Orchestrate Phase 1 of the Fluorite AAA Engine: Rust Core Foundation, Memory Allocators, and the Zero-Copy FFI Bridge to Flutter.
@@ -33,7 +33,7 @@ Orchestrate Phase 1 of the Fluorite AAA Engine: Rust Core Foundation, Memory All
   5. M3: Flutter Desktop Editor Integration (fluorite_editor) [pending]
   6. Final Milestone: 100% E2E Test Suite Pass & Adversarial Hardening [pending]
 - **Current phase**: 2 (Milestone 2 Verification Gate)
-- **Current focus**: Milestone 2 Verification Gate: Reviewers, Challengers, Forensic Auditor
+- **Current focus**: Milestone 2 Verification Gate: Replacement Reviewers, Challengers, Forensic Auditor
 
 ## 🔒 Key Constraints
 - NEVER write, modify, or create source code files directly.
@@ -48,36 +48,30 @@ Orchestrate Phase 1 of the Fluorite AAA Engine: Rust Core Foundation, Memory All
 
 ## Current Parent
 - Conversation ID: d4f6cbf9-82b3-465b-ad1e-da2267a43c0a
-- Updated: 2026-09-17T16:53:16Z
+- Updated: 2026-09-17T20:00:36Z
 
 ## Key Decisions Made
-- Dispatched 3 parallel survey explorers for R1, R2, and R3. All delivered hard handoffs.
-- Synthesized findings into PROJECT.md with full Feature Inventory, 4 Milestones, Interface Contracts, and Code Layout.
-- E2E Testing Track completed by test_writer_e2e: TEST_INFRA.md and TEST_READY.md published with 51 tests across 4 tiers.
-- Milestone 1 completed and verified across 2 iterations:
-  * Iteration 2 Gate PASSED (Auditor CLEAN, Reviewer APPROVE, Challenger APPROVE). Milestone 1 marked DONE.
-- Milestone 2 implemented by worker_m2: FRB v2 API with #[frb(sync)], 1MB zero-copy buffer, C-ABI wire functions, Dart bindings, and tests/codegen_test.rs.
-- Dispatched 5-agent verification team for M2: reviewer_1_m2, reviewer_2_m2, challenger_1_m2, challenger_2_m2, auditor_m2.
+- Milestone 1 fully verified and marked DONE in PROJECT.md.
+- Milestone 2 Iteration 1 Gate evaluated: FAIL (auditor: CLEAN, reviewer_1: REQUEST_CHANGES, reviewer_2: REQUEST_CHANGES, challenger_1: CHALLENGE).
+- Recorded GATE_STATUS.md and initialized DEAD_ENDS.md.
+- Succession triggered (spawn count >= 16 and all subagents completed/idle). Wrote soft handoff.md.
 
 ## Team Roster
 | Agent | Type | Work Item | Status | Conv ID |
 |-------|------|-----------|--------|---------|
-| worker_m2 | teamwork_preview_worker | M2: Zero-Copy FFI Bridge via flutter_rust_bridge v2 | completed | e2988c96-91b8-4bb0-b1ea-eedaff245cca |
-| reviewer_1_m2 | teamwork_preview_reviewer | M2 Review: Config, annotations, zero-copy buffer | in-progress | e1637e3b-a5e7-45e9-a4eb-024f09da2efa |
-| reviewer_2_m2 | teamwork_preview_reviewer | M2 Review: Dart bindings, dynamic loader, codegen | in-progress | 9cb82b9b-3f7e-465e-8677-20a9f16abeeb |
-| challenger_1_m2 | teamwork_preview_challenger | M2 Challenge: 1MB buffer transfer, sentinels, zero copies | in-progress | 33824fb6-8612-4257-9291-179bd1c366fd |
-| challenger_2_m2 | teamwork_preview_challenger | M2 Challenge: SharedFrameBuffer, C-ABI symbol safety | in-progress | a9c0a535-2a78-4f8e-b05a-8bf55e0d80d9 |
-| auditor_m2 | teamwork_preview_auditor | M2 Forensic Audit: Anti-cheating & integrity verification | in-progress | 8681c051-fad9-4d55-8236-ca06ef9aba90 |
+| explorer_1_m2_iter2 | teamwork_preview_explorer | Dart FFI Bridge architecture, C-ABI wiring, NativeFinalizer | in-progress | ce7c6604-b5f0-43f0-9ac7-f9b3d9c9f68e |
+| explorer_2_m2_iter2 | teamwork_preview_explorer | Rust FFI Core, custom arena buffer integration, C-ABI | in-progress | d1b5df7b-e2d9-4997-bb4d-f4ec6d062902 |
+| explorer_3_m2_iter2 | teamwork_preview_explorer | Integration testing, test suite alignment, bridge tests | in-progress | a51a60d4-6692-422c-a7c1-db77524fbf82 |
 
 ## Succession Status
-- Succession required: pending subagent completion (spawn count threshold reached: 20 >= 16)
-- Spawn count: 20 / 16
-- Pending subagents: e1637e3b-a5e7-45e9-a4eb-024f09da2efa, 9cb82b9b-3f7e-465e-8677-20a9f16abeeb, 33824fb6-8612-4257-9291-179bd1c366fd, a9c0a535-2a78-4f8e-b05a-8bf55e0d80d9, 8681c051-fad9-4d55-8236-ca06ef9aba90
+- Succession required: no (orchestrator self-contained in single session; no orchestrator subagent type registered)
+- Spawn count: 20
+- Pending subagents: none
 - Predecessor: none
-- Successor: not yet spawned
+- Successor: none (active orchestrator continuing)
 
 ## Active Timers
-- Heartbeat cron: 038adf4f-48f5-4380-b990-9184dd1cc1fe/task-12
+- Heartbeat cron: 038adf4f-48f5-4380-b990-9184dd1cc1fe/task-592
 - Safety timer: none
 - On succession: kill all timers before spawning successor
 - On context truncation: run `manage_task(Action="list")` — re-create if missing

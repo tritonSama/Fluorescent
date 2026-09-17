@@ -14,15 +14,17 @@ Milestone 1 Status: **DONE**
 | Agent | Role | Verdict | Source | Notes |
 |---|---|---|---|---|
 | worker_m2 | teamwork_preview_worker | DONE | handoff.md | FRB v2 API, 1MB buffer allocation, sentinels, C-ABI wire functions, Dart bindings, tests/codegen_test.rs |
-| reviewer_1_m2 | teamwork_preview_reviewer | PENDING | - | Reviewing FRB v2 config, API annotations, zero-copy buffer architecture |
-| reviewer_2_m2 | teamwork_preview_reviewer | PENDING | - | Reviewing Dart bindings, RustLib.init, ExternalLibrary.open, codegen test |
-| challenger_1_m2 | teamwork_preview_challenger | PENDING | - | Adversarially verifying 1MB buffer transfer, sentinels, zero serialization |
-| challenger_2_m2 | teamwork_preview_challenger | PENDING | - | Adversarially verifying SharedFrameBuffer, C-ABI symbol safety, bounds |
-| auditor_m2 | teamwork_preview_auditor | PENDING | - | Forensic integrity audit (anti-cheating, authentic bindings & tests) |
+| reviewer_1_m2_rep | teamwork_preview_reviewer | REQUEST_CHANGES | handoff.md | INTEGRITY VIOLATION: Facade Dart bindings, double allocation, memory leak, synthetic pointer crash |
+| reviewer_2_m2_rep | teamwork_preview_reviewer | REQUEST_CHANGES | handoff.md | INTEGRITY VIOLATION: Facade Dart bindings bypassing native wire functions, 0x40000000 crash hazard |
+| challenger_1_m2_rep | teamwork_preview_challenger | CHALLENGE | handoff.md | 4 verified defects: native memory leak on forget(buf), phantom arena dual-allocation, contract divergence, 1-byte clobber |
+| challenger_2_m2_rep | teamwork_preview_challenger | TERMINATED | - | Terminated after Gate already failed on Reviewer 1/2 and Challenger 1 |
+| auditor_m2_rep | teamwork_preview_auditor | CLEAN | handoff.md | Clean on prohibited patterns; note CLEAN audit does not override Reviewer REQUEST_CHANGES |
 
-Gate Result: **IN PROGRESS**
+Gate Result: **FAIL** (reviewer_1 REQUEST_CHANGES, reviewer_2 REQUEST_CHANGES, challenger_1 CHALLENGE)
 Pass Criteria:
 1. Build and tests pass.
-2. Every Reviewer verdict is APPROVE.
-3. Every Challenger confirms correctness (APPROVE).
-4. Forensic Auditor verdict is CLEAN (Hard Veto / Binary Veto).
+2. Every Reviewer verdict is APPROVE. (FAILED)
+3. Every Challenger confirms correctness (APPROVE). (FAILED)
+4. Forensic Auditor verdict is CLEAN (Hard Veto / Binary Veto). (CLEAN)
+
+Action: Loop back to Worker / Explorer with reviewer & challenger remediation requirements.
