@@ -11,11 +11,14 @@ dependencies:
   flutter:
     sdk: flutter
   vector_math: ^2.2.0
+  meta: ^1.15.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  args: ^2.5.0
+  ffi: ^2.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
