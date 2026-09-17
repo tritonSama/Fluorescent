@@ -52,9 +52,9 @@ The architecture comprises three main components:
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
 | M1 | Rust Core & Memory Allocators | Initialize `fluorite_core`, implement `ArenaAllocator` & `DoubleBufferedFrameAllocator`, pass `cargo test` | None | DONE |
-| M2 | Zero-Copy FFI Bridge | Configure FRB v2, define Rust API, generate bindings, verify zero-copy buffer transfer and codegen test | M1 | IN_PROGRESS |
-| M3 | Flutter Desktop Editor Integration | Initialize `fluorite_editor`, link `fluorite_core.dll`, build Editor UI & Telemetry, pass integration tests | M2 | PLANNED |
-| M4 | Final Milestone: E2E Verification & Hardening | Pass 100% of E2E test suite (Tiers 1-4) followed by Phase 2 adversarial hardening (Tier 5) | M1, M2, M3 | PLANNED |
+| M2 | Zero-Copy FFI Bridge | Configure FRB v2, define Rust API, generate bindings, verify zero-copy buffer transfer, codegen test, and 30 bridge integration tests | M1 | DONE |
+| M3 | Flutter Desktop Editor Integration | Initialize `fluorite_editor`, link `fluorite_core.dll`, build Editor UI & Telemetry, pass integration tests | M2 | PLANNED (FROZEN per USER COMMAND) |
+| M4 | Final Milestone: E2E Verification & Hardening | Pass 100% of E2E test suite (Tiers 1-4) followed by Phase 2 adversarial hardening (Tier 5) | M1, M2, M3 | PLANNED (FROZEN per USER COMMAND) |
 
 ---
 

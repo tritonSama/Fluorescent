@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:ffi' as ffi;
 import 'dart:io' as io;
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'api/engine.dart';
@@ -28,6 +29,79 @@ class ExternalLibrary {
     }
   }
 }
+
+/// Fallback system C runtime allocator using malloc/free from msvcrt.dll (Windows)
+/// or DynamicLibrary.process() (POSIX). Provides real virtual memory addresses
+/// to eliminate access violations when dereferencing pointers in fallback mode.
+class _SystemAlloc {
+  static final _SystemAlloc instance = _SystemAlloc._();
+
+  late final ffi.Pointer<ffi.Uint8> Function(int) _malloc;
+  late final void Function(ffi.Pointer<ffi.Uint8>) _free;
+  late final ffi.Pointer<ffi.NativeFinalizerFunction> _freeFnPtr;
+  bool _available = false;
+
+  bool get isAvailable => _available;
+  ffi.Pointer<ffi.NativeFinalizerFunction> get freeFnPtr => _freeFnPtr;
+
+  _SystemAlloc._() {
+    try {
+      final ffi.DynamicLibrary lib = io.Platform.isWindows
+          ? ffi.DynamicLibrary.open('msvcrt.dll')
+          : ffi.DynamicLibrary.process();
+
+      _malloc = lib.lookupFunction<
+          ffi.Pointer<ffi.Uint8> Function(ffi.Size),
+          ffi.Pointer<ffi.Uint8> Function(int)>('malloc');
+
+      _free = lib.lookupFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Uint8>),
+          void Function(ffi.Pointer<ffi.Uint8>)>('free');
+
+      _freeFnPtr = lib.lookup<ffi.NativeFinalizerFunction>('free');
+      _available = true;
+    } catch (_) {
+      _available = false;
+    }
+  }
+
+  ffi.Pointer<ffi.Uint8>? allocate(int size) {
+    if (!_available || size <= 0) return null;
+    return _malloc(size);
+  }
+
+  void free(ffi.Pointer<ffi.Uint8> ptr) {
+    if (!_available || ptr == ffi.nullptr) return;
+    _free(ptr);
+  }
+}
+
+/// Token for deallocating native buffers when collected by the Dart VM GC.
+class _BufferAllocationToken {
+  final ffi.Pointer<ffi.Uint8> ptr;
+  final int sizeBytes;
+  final RustLibPlatform platform;
+
+  _BufferAllocationToken(this.ptr, this.sizeBytes, this.platform);
+
+  void deallocate() {
+    if (platform.freeBufferAutoFnPtr != null) {
+      platform.freeBufferAutoRaw(ptr);
+    } else {
+      platform.freeBufferRaw(ptr, sizeBytes);
+    }
+  }
+}
+
+/// GC finalizer to prevent native memory leaks when external TypedData is collected.
+final Finalizer<_BufferAllocationToken> _bufferFinalizer =
+    Finalizer<_BufferAllocationToken>((token) => token.deallocate());
+
+/// Native finalizer for SharedFrameBuffer in fallback mode using system free.
+final ffi.NativeFinalizer? _systemSharedBufFinalizer =
+    _SystemAlloc.instance.isAvailable
+        ? ffi.NativeFinalizer(_SystemAlloc.instance.freeFnPtr)
+        : null;
 
 /// The main entry point for the Fluorite AAA Engine Flutter Rust Bridge library.
 class RustLib {
@@ -58,6 +132,7 @@ class RustLib {
     ffi.DynamicLibrary? dylib = externalLibrary?.dylib;
 
     if (dylib == null) {
+      final exeDir = io.File(io.Platform.resolvedExecutable).parent.path;
       // Standard resolution search paths for fluorite_core.dll on Windows
       final candidatePaths = [
         'fluorite_core.dll',
@@ -67,6 +142,8 @@ class RustLib {
         '../fluorite_core/target/release/fluorite_core.dll',
         '../../fluorite_core/target/debug/fluorite_core.dll',
         '../../fluorite_core/target/release/fluorite_core.dll',
+        '$exeDir/fluorite_core.dll',
+        '$exeDir/data/flutter_assets/fluorite_core.dll',
       ];
 
       for (final p in candidatePaths) {
@@ -90,7 +167,8 @@ class RustLib {
   }
 }
 
-/// Dispatches high-level API calls to either native FFI symbols or engine state.
+/// Dispatches high-level API calls to compiled native C-ABI symbols when available,
+/// or executes genuine managed logic in fallback mode without synthetic/fake pointers.
 class RustLibApi {
   final RustLib _lib;
 
@@ -98,6 +176,8 @@ class RustLibApi {
   int _totalAllocated = 0;
   int _frameIndex = 0;
   static const int _arenaCapacity = 16 * 1024 * 1024; // 16 MB
+
+  ffi.NativeFinalizer? _nativeSharedBufFinalizer;
 
   RustLibApi(this._lib);
 
@@ -107,9 +187,36 @@ class RustLibApi {
     _frameIndex = 0;
   }
 
+  EngineStatus _decodeEngineStatus(ffi.Pointer<EngineStatusC> rawPtr) {
+    final statusRef = rawPtr.ref;
+    return EngineStatus(
+      isInitialized: statusRef.isInitialized,
+      totalMemoryAllocated: BigInt.from(statusRef.totalMemoryAllocated),
+      arenaCapacity: BigInt.from(statusRef.arenaCapacity),
+      frameIndex: BigInt.from(statusRef.frameIndex),
+      statusMessage: readCString(statusRef.statusMessage),
+      coreVersion: readCString(statusRef.coreVersion),
+      allocatorName: readCString(statusRef.allocatorName),
+    );
+  }
+
   EngineStatus crateApiEngineStartEngine() {
-    _isEngineStarted = true;
-    _frameIndex++;
+    final platform = _lib.platform;
+    if (platform != null && platform.hasNativeBindings) {
+      final rawPtr = platform.startEngineSyncRaw();
+      if (rawPtr != null && rawPtr != ffi.nullptr) {
+        try {
+          return _decodeEngineStatus(rawPtr);
+        } finally {
+          platform.freeStatusRaw(rawPtr);
+        }
+      }
+    }
+
+    // Fallback mode (simulated) - idempotent start
+    if (!_isEngineStarted) {
+      _isEngineStarted = true;
+    }
 
     return EngineStatus(
       isInitialized: true,
@@ -127,25 +234,46 @@ class RustLibApi {
       return Uint8List(0);
     }
 
-    _totalAllocated += sizeBytes;
+    _totalAllocated = math.min(_totalAllocated + sizeBytes, _arenaCapacity);
 
     final platform = _lib.platform;
     if (platform != null && platform.hasNativeBindings) {
       final rawPtr = platform.allocateBufferRaw(sizeBytes);
       if (rawPtr != null && rawPtr != ffi.nullptr) {
         // Zero-copy view using Dart VM's Pointer.asTypedList
-        return rawPtr.asTypedList(sizeBytes);
+        final list = rawPtr.asTypedList(sizeBytes);
+        // Attach finalizer to ensure memory is reclaimed when Dart GC collects the list
+        _bufferFinalizer.attach(
+          list,
+          _BufferAllocationToken(rawPtr, sizeBytes, platform),
+        );
+        return list;
       }
     }
 
     // Direct contiguous byte buffer allocation with sentinels
     final buffer = Uint8List(sizeBytes);
     buffer[0] = 0xAA;
-    buffer[sizeBytes - 1] = 0x55;
+    if (sizeBytes > 1) {
+      buffer[sizeBytes - 1] = 0x55;
+    }
     return buffer;
   }
 
   EngineStatus crateApiEngineGetEngineStatus() {
+    final platform = _lib.platform;
+    if (platform != null && platform.hasNativeBindings) {
+      final rawPtr = platform.getStatusRaw();
+      if (rawPtr != null && rawPtr != ffi.nullptr) {
+        try {
+          return _decodeEngineStatus(rawPtr);
+        } finally {
+          platform.freeStatusRaw(rawPtr);
+        }
+      }
+    }
+
+    // Fallback mode (simulated)
     if (!_isEngineStarted) {
       return EngineStatus(
         isInitialized: false,
@@ -170,11 +298,68 @@ class RustLibApi {
   }
 
   bool crateApiEngineVerifyBufferSentinels({required List<int> buffer}) {
-    if (buffer.isEmpty) return false;
+    if (buffer.length < 2) return false;
+
+    final platform = _lib.platform;
+    if (platform != null && platform.hasNativeBindings) {
+      final len = buffer.length;
+      final ptr = platform.allocateBufferRaw(len);
+      if (ptr != null && ptr != ffi.nullptr) {
+        try {
+          final view = ptr.asTypedList(len);
+          view.setAll(0, buffer is Uint8List ? buffer : Uint8List.fromList(buffer));
+          return platform.verifyBufferSentinelsRaw(ptr, len);
+        } finally {
+          platform.freeBufferRaw(ptr, len);
+        }
+      }
+    }
+
     return buffer[0] == 0xAA && buffer[buffer.length - 1] == 0x55;
   }
 
   SharedFrameBuffer crateApiEngineSharedFrameBufferNew({required int sizeBytes}) {
+    final platform = _lib.platform;
+    if (platform != null && platform.hasNativeBindings) {
+      final handle = platform.sharedBufNewRaw(sizeBytes);
+      if (handle != null && handle != ffi.nullptr) {
+        final realAddr = platform.sharedBufPtrAddrRaw(handle);
+        final len = platform.sharedBufLenRaw(handle);
+        final view = ffi.Pointer<ffi.Uint8>.fromAddress(realAddr).asTypedList(len);
+        final sfb = SharedFrameBuffer.fromView(realAddr, len, view);
+
+        if (platform.sharedBufFreeFnPtr != null) {
+          _nativeSharedBufFinalizer ??= ffi.NativeFinalizer(platform.sharedBufFreeFnPtr!);
+          _nativeSharedBufFinalizer!.attach(sfb, handle.cast<ffi.Void>());
+        }
+        return sfb;
+      }
+    }
+
+    // Safe fallback mode using real system memory allocation
+    if (sizeBytes <= 0) {
+      return SharedFrameBuffer.fromView(0, 0, Uint8List(0));
+    }
+
+    final sysAlloc = _SystemAlloc.instance;
+    if (sysAlloc.isAvailable) {
+      final ptr = sysAlloc.allocate(sizeBytes);
+      if (ptr != null && ptr != ffi.nullptr) {
+        final view = ptr.asTypedList(sizeBytes);
+        view.fillRange(0, sizeBytes, 0);
+        if (sizeBytes >= 4) {
+          view[0] = 0xDE;
+          view[1] = 0xAD;
+          view[2] = 0xBE;
+          view[3] = 0xEF;
+        }
+        final sfb = SharedFrameBuffer.fromView(ptr.address, sizeBytes, view);
+        _systemSharedBufFinalizer?.attach(sfb, ptr.cast<ffi.Void>());
+        return sfb;
+      }
+    }
+
+    // Emergency in-memory fallback for zero-byte or headless without OS malloc
     final buffer = Uint8List(sizeBytes);
     if (sizeBytes >= 4) {
       buffer[0] = 0xDE;
@@ -182,8 +367,6 @@ class RustLibApi {
       buffer[2] = 0xBE;
       buffer[3] = 0xEF;
     }
-    // In simulated/managed mode, generate a stable synthetic memory address
-    final syntheticAddr = 0x40000000 + (_frameIndex * 0x10000);
-    return SharedFrameBuffer.fromView(syntheticAddr, sizeBytes, buffer);
+    return SharedFrameBuffer.fromView(0, sizeBytes, buffer);
   }
 }

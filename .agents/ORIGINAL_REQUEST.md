@@ -62,3 +62,7 @@ Initialize a new Flutter desktop project (`fluorite_editor`). Integrate the gene
 - [ ] Automated tests confirm `flutter_rust_bridge` generation completes without errors.
 - [ ] A Flutter integration test verifies that Dart can successfully call a Rust FFI function to allocate 1MB of memory and read a value from it without crashing.
 - [ ] The Flutter UI successfully launches on Desktop and communicates with the compiled Rust binary.
+
+## 2026-09-17T20:35:27Z
+
+USER COMMAND: Pause and freeze the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Do not proceed to Milestone 3. Wait for further instructions.

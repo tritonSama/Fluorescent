@@ -1,3 +1,4 @@
+use std::ffi::c_char;
 use std::sync::RwLock;
 use serde::{Deserialize, Serialize};
 use crate::allocator::{
@@ -66,7 +67,7 @@ pub fn allocate_engine_buffer(size_bytes: usize) -> Vec<u8> {
         return Vec::new();
     }
 
-    // Allocate continuous memory in the custom ArenaAllocator
+    // Ensure engine allocator is initialized
     {
         let mut guard = ENGINE_ALLOCATOR
             .write()
@@ -77,17 +78,14 @@ pub fn allocate_engine_buffer(size_bytes: usize) -> Vec<u8> {
                 .expect("Failed to initialize engine frame allocator");
             *guard = Some(allocator);
         }
-
-        if let Some(alloc) = guard.as_mut() {
-            let arena = alloc.current_arena();
-            let _ = arena.alloc_slice(size_bytes, 0u8);
-        }
     }
 
     let mut buffer = vec![0u8; size_bytes];
     if size_bytes > 0 {
         buffer[0] = SENTINEL_HEADER;
-        buffer[size_bytes - 1] = SENTINEL_FOOTER;
+        if size_bytes > 1 {
+            buffer[size_bytes - 1] = SENTINEL_FOOTER;
+        }
     }
     buffer
 }
@@ -173,16 +171,60 @@ impl SharedFrameBuffer {
         self.data.as_ptr() as usize
     }
 
-    /// Reads the byte at the specified offset.
+    /// Reads the byte at the specified offset with safe bounds checking.
     #[flutter_rust_bridge::frb(sync)]
     pub fn read_byte(&self, offset: usize) -> u8 {
-        self.data[offset]
+        self.data.get(offset).copied().unwrap_or(0)
     }
 
-    /// Writes a byte at the specified offset.
+    /// Writes a byte at the specified offset with safe bounds checking.
     #[flutter_rust_bridge::frb(sync)]
     pub fn write_byte(&mut self, offset: usize, value: u8) {
-        self.data[offset] = value;
+        if let Some(cell) = self.data.get_mut(offset) {
+            *cell = value;
+        }
     }
 }
+
+/// C-ABI compatible memory layout for passing EngineStatus across FFI boundaries.
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub struct EngineStatusC {
+    pub is_initialized: bool,
+    pub total_memory_allocated: usize,
+    pub arena_capacity: usize,
+    pub frame_index: u64,
+    pub status_message: *const c_char,
+    pub core_version: *const c_char,
+    pub allocator_name: *const c_char,
+}
+
+static MSG_INITIALIZED: &[u8] = b"Fluorite Engine Core Initialized\0";
+static MSG_RUNNING: &[u8] = b"Fluorite Engine Core Running\0";
+static MSG_NOT_INITIALIZED: &[u8] = b"Fluorite Engine Core Not Initialized\0";
+static VERSION_STR: &[u8] = b"0.1.0\0";
+static ALLOC_NAME: &[u8] = b"FluoriteArenaAllocator_v1\0";
+
+impl From<&EngineStatus> for EngineStatusC {
+    fn from(status: &EngineStatus) -> Self {
+        let msg_ptr = if !status.is_initialized {
+            MSG_NOT_INITIALIZED.as_ptr() as *const c_char
+        } else if status.status_message.contains("Initialized") {
+            MSG_INITIALIZED.as_ptr() as *const c_char
+        } else {
+            MSG_RUNNING.as_ptr() as *const c_char
+        };
+
+        Self {
+            is_initialized: status.is_initialized,
+            total_memory_allocated: status.total_memory_allocated,
+            arena_capacity: status.arena_capacity,
+            frame_index: status.frame_index,
+            status_message: msg_ptr,
+            core_version: VERSION_STR.as_ptr() as *const c_char,
+            allocator_name: ALLOC_NAME.as_ptr() as *const c_char,
+        }
+    }
+}
+
 

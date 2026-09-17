@@ -236,10 +236,9 @@ impl Drop for ArenaAllocator {
     }
 }
 
-/// Verifies whether the given buffer has valid 1MB sentinels (0xAA header and 0x55 footer).
+/// Verifies whether the given buffer has valid sentinels (0xAA header and 0x55 footer).
+///
+/// Requires buffer length >= 2 to accommodate two distinct boundary sentinels.
 pub fn verify_buffer_sentinels(buffer: &[u8]) -> bool {
-    if buffer.len() < ONE_MB {
-        return false;
-    }
-    buffer[0] == SENTINEL_HEADER && buffer[buffer.len() - 1] == SENTINEL_FOOTER
+    buffer.len() >= 2 && buffer[0] == SENTINEL_HEADER && buffer[buffer.len() - 1] == SENTINEL_FOOTER
 }

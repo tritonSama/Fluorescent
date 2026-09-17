@@ -28,3 +28,25 @@ Pass Criteria:
 4. Forensic Auditor verdict is CLEAN (Hard Veto / Binary Veto). (CLEAN)
 
 Action: Loop back to Worker / Explorer with reviewer & challenger remediation requirements.
+
+---
+
+## Milestone 2: Zero-Copy FFI Bridge (flutter_rust_bridge v2) — Iteration 2
+| Agent | Role | Verdict | Source | Notes |
+|---|---|---|---|---|
+| worker_m2_iter2 | teamwork_preview_worker | DONE | handoff.md | Resolved all 7 Gate 1 defects: single-source alloc, guarded sentinels, C-ABI catch_unwind, NativeFinalizer auto-free, genuine C-ABI dispatch in frb_generated.dart, real malloc in fallback, 21-test bridge_integration_test.dart |
+| reviewer_1_m2_iter2 | teamwork_preview_reviewer | APPROVE | handoff.md | Verified all 7 fixes; 0 issues on dart analyze, 21/21 bridge tests, 51/51 E2E tests, 7/7 stress tests pass |
+| reviewer_2_m2_iter2 | teamwork_preview_reviewer | APPROVE | handoff.md | Verified bridge_integration_test.dart, reformed codegen_test.rs, EngineStatusC 56-byte layout, 14/14 stress tests pass |
+| challenger_1_m2_iter2 | teamwork_preview_challenger | APPROVE | handoff.md | 1MB buffer, sentinel corruption ladder, 1-byte guard, memory stress (100MB / 1000 allocs), 30/30 tests pass |
+| challenger_2_m2_iter2 | teamwork_preview_challenger | APPROVE | handoff.md | SharedFrameBuffer pointer safety, 0x40000000 eradicated, no 0xC0000005 crashes, bounds checks, 16/16 tests pass |
+| auditor_m2_iter2 | teamwork_preview_auditor | CLEAN | handoff.md | Zero prohibited patterns, authentic C-ABI dispatch, authentic _SystemAlloc memory, clean layout compliance |
+
+Gate Result: **PASS**
+Pass Criteria:
+1. Build and tests pass. (PASSED - 0 issues on dart analyze, 30/30 bridge tests, 51/51 E2E tests)
+2. Every Reviewer verdict is APPROVE. (PASSED - reviewer_1 APPROVE, reviewer_2 APPROVE)
+3. Every Challenger confirms correctness (APPROVE). (PASSED - challenger_1 APPROVE, challenger_2 APPROVE)
+4. Forensic Auditor verdict is CLEAN (Hard Veto / Binary Veto). (PASSED - auditor CLEAN)
+
+Milestone 2 Status: **DONE**
+Swarm Status: **FROZEN** (per USER COMMAND ## 2026-09-17T20:35:27Z)

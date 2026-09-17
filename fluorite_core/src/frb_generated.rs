@@ -14,10 +14,18 @@
     clippy::clone_on_copy
 )]
 
+use crate::allocator::{SENTINEL_FOOTER, SENTINEL_HEADER};
 use crate::api::engine::{
     allocate_engine_buffer, get_engine_status, start_engine, verify_buffer_sentinels,
-    EngineStatus, SharedFrameBuffer,
+    verify_buffer_sentinels_slice, EngineStatus, EngineStatusC, SharedFrameBuffer,
 };
+
+/// C-ABI token structure for finalizer deallocation.
+#[repr(C)]
+pub struct EngineBufferToken {
+    pub ptr: *mut u8,
+    pub size_bytes: usize,
+}
 
 // Section: wire_funcs
 
@@ -39,58 +47,121 @@ pub extern "C" fn wire__crate__api__engine__start_engine(
     data_len_: i32,
 ) {
     let _ = (port_, ptr_, rust_vec_len_, data_len_);
-    let _ = start_engine();
+    let _ = std::panic::catch_unwind(|| {
+        let _ = start_engine();
+    });
 }
 
 /// C-ABI synchronous wire function for starting the engine lifecycle.
 #[no_mangle]
-pub extern "C" fn wire__crate__api__engine__start_engine_sync() -> *mut EngineStatus {
-    let status = start_engine();
-    Box::into_raw(Box::new(status))
+pub extern "C" fn wire__crate__api__engine__start_engine_sync() -> *mut EngineStatusC {
+    std::panic::catch_unwind(|| {
+        let status = start_engine();
+        let wire_status = EngineStatusC::from(&status);
+        Box::into_raw(Box::new(wire_status))
+    })
+    .unwrap_or(std::ptr::null_mut())
 }
 
 /// C-ABI synchronous wire function for allocating a contiguous engine buffer.
 ///
-/// In FRB v2, continuous byte arrays are mapped directly to Dart's external TypedData
-/// (`Dart_NewExternalTypedDataWithFinalizer`), achieving zero-copy transfer.
+/// Stores size_bytes as a usize prefix immediately preceding the buffer payload,
+/// allowing safe single-pointer automatic deallocation via NativeFinalizer.
 #[no_mangle]
 pub extern "C" fn wire__crate__api__engine__allocate_engine_buffer(
     size_bytes: usize,
 ) -> *mut u8 {
-    let mut buf = allocate_engine_buffer(size_bytes);
-    let ptr = buf.as_mut_ptr();
-    std::mem::forget(buf);
-    ptr
+    std::panic::catch_unwind(|| {
+        if size_bytes == 0 {
+            return std::ptr::null_mut();
+        }
+        let total_bytes = size_bytes + std::mem::size_of::<usize>();
+        let layout = std::alloc::Layout::from_size_align(total_bytes, 8).unwrap();
+        unsafe {
+            let ptr = std::alloc::alloc_zeroed(layout);
+            if ptr.is_null() {
+                return std::ptr::null_mut();
+            }
+            *(ptr as *mut usize) = size_bytes;
+            let data_ptr = ptr.add(std::mem::size_of::<usize>());
+            *data_ptr = SENTINEL_HEADER;
+            if size_bytes > 1 {
+                *data_ptr.add(size_bytes - 1) = SENTINEL_FOOTER;
+            }
+            data_ptr
+        }
+    })
+    .unwrap_or(std::ptr::null_mut())
 }
 
-/// C-ABI wire function to deallocate memory returned by `allocate_engine_buffer`.
+/// C-ABI wire function to deallocate memory returned by `allocate_engine_buffer`
+/// using a single-pointer signature compatible with Dart's `NativeFinalizer`.
+#[no_mangle]
+pub extern "C" fn wire__crate__api__engine__free_engine_buffer_auto(ptr: *mut u8) {
+    let _ = std::panic::catch_unwind(|| {
+        if ptr.is_null() {
+            return;
+        }
+        unsafe {
+            let base_ptr = ptr.sub(std::mem::size_of::<usize>());
+            let size_bytes = *(base_ptr as *mut usize);
+            if size_bytes > 0 {
+                let total_bytes = size_bytes + std::mem::size_of::<usize>();
+                let layout = std::alloc::Layout::from_size_align(total_bytes, 8).unwrap();
+                std::alloc::dealloc(base_ptr, layout);
+            }
+        }
+    });
+}
+
+/// C-ABI wire function to deallocate memory returned by `allocate_engine_buffer` (two-argument variant).
 #[no_mangle]
 pub extern "C" fn wire__crate__api__engine__free_engine_buffer(
     ptr: *mut u8,
     size_bytes: usize,
 ) {
-    if !ptr.is_null() && size_bytes > 0 {
-        unsafe {
-            let _ = Vec::from_raw_parts(ptr, size_bytes, size_bytes);
+    let _ = size_bytes;
+    wire__crate__api__engine__free_engine_buffer_auto(ptr);
+}
+
+/// C-ABI wire function for freeing an engine buffer using an `EngineBufferToken` pointer.
+#[no_mangle]
+pub extern "C" fn wire__crate__api__engine__free_engine_buffer_finalizer(
+    token: *mut EngineBufferToken,
+) {
+    let _ = std::panic::catch_unwind(|| {
+        if !token.is_null() {
+            unsafe {
+                let tok = Box::from_raw(token);
+                if !tok.ptr.is_null() {
+                    wire__crate__api__engine__free_engine_buffer_auto(tok.ptr);
+                }
+            }
         }
-    }
+    });
 }
 
 /// C-ABI wire function for retrieving engine telemetry status.
 #[no_mangle]
-pub extern "C" fn wire__crate__api__engine__get_engine_status() -> *mut EngineStatus {
-    let status = get_engine_status();
-    Box::into_raw(Box::new(status))
+pub extern "C" fn wire__crate__api__engine__get_engine_status() -> *mut EngineStatusC {
+    std::panic::catch_unwind(|| {
+        let status = get_engine_status();
+        let wire_status = EngineStatusC::from(&status);
+        Box::into_raw(Box::new(wire_status))
+    })
+    .unwrap_or(std::ptr::null_mut())
 }
 
-/// C-ABI wire function for freeing an allocated `EngineStatus` struct.
+/// C-ABI wire function for freeing an allocated `EngineStatusC` struct.
 #[no_mangle]
-pub extern "C" fn wire__crate__api__engine__free_engine_status(ptr: *mut EngineStatus) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = Box::from_raw(ptr);
+pub extern "C" fn wire__crate__api__engine__free_engine_status(ptr: *mut EngineStatusC) {
+    let _ = std::panic::catch_unwind(|| {
+        if !ptr.is_null() {
+            unsafe {
+                let _ = Box::from_raw(ptr);
+            }
         }
-    }
+    });
 }
 
 /// C-ABI wire function for verifying buffer sentinels.
@@ -99,11 +170,14 @@ pub extern "C" fn wire__crate__api__engine__verify_buffer_sentinels(
     ptr: *const u8,
     len: usize,
 ) -> bool {
-    if ptr.is_null() || len == 0 {
-        return false;
-    }
-    let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
-    verify_buffer_sentinels(slice.to_vec())
+    std::panic::catch_unwind(|| {
+        if ptr.is_null() || len < 2 {
+            return false;
+        }
+        let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
+        verify_buffer_sentinels_slice(slice)
+    })
+    .unwrap_or(false)
 }
 
 /// C-ABI wire function for creating a new `SharedFrameBuffer`.
@@ -111,8 +185,11 @@ pub extern "C" fn wire__crate__api__engine__verify_buffer_sentinels(
 pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_new(
     size_bytes: usize,
 ) -> *mut SharedFrameBuffer {
-    let handle = SharedFrameBuffer::new(size_bytes);
-    Box::into_raw(Box::new(handle))
+    std::panic::catch_unwind(|| {
+        let handle = SharedFrameBuffer::new(size_bytes);
+        Box::into_raw(Box::new(handle))
+    })
+    .unwrap_or(std::ptr::null_mut())
 }
 
 /// C-ABI wire function for freeing a `SharedFrameBuffer`.
@@ -120,11 +197,13 @@ pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_new(
 pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_free(
     ptr: *mut SharedFrameBuffer,
 ) {
-    if !ptr.is_null() {
-        unsafe {
-            let _ = Box::from_raw(ptr);
+    let _ = std::panic::catch_unwind(|| {
+        if !ptr.is_null() {
+            unsafe {
+                let _ = Box::from_raw(ptr);
+            }
         }
-    }
+    });
 }
 
 /// C-ABI wire function for querying the byte length of a `SharedFrameBuffer`.
@@ -132,11 +211,14 @@ pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_free(
 pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_len(
     ptr: *const SharedFrameBuffer,
 ) -> usize {
-    if ptr.is_null() {
-        0
-    } else {
-        unsafe { (*ptr).len() }
-    }
+    std::panic::catch_unwind(|| {
+        if ptr.is_null() {
+            0
+        } else {
+            unsafe { (*ptr).len() }
+        }
+    })
+    .unwrap_or(0)
 }
 
 /// C-ABI wire function for querying the raw pointer address of a `SharedFrameBuffer`.
@@ -144,11 +226,14 @@ pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_len(
 pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_ptr_address(
     ptr: *const SharedFrameBuffer,
 ) -> usize {
-    if ptr.is_null() {
-        0
-    } else {
-        unsafe { (*ptr).ptr_address() }
-    }
+    std::panic::catch_unwind(|| {
+        if ptr.is_null() {
+            0
+        } else {
+            unsafe { (*ptr).ptr_address() }
+        }
+    })
+    .unwrap_or(0)
 }
 
 /// C-ABI wire function for reading a byte at a given offset from a `SharedFrameBuffer`.
@@ -157,11 +242,14 @@ pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_read_byte(
     ptr: *const SharedFrameBuffer,
     offset: usize,
 ) -> u8 {
-    if ptr.is_null() {
-        0
-    } else {
-        unsafe { (*ptr).read_byte(offset) }
-    }
+    std::panic::catch_unwind(|| {
+        if ptr.is_null() {
+            0
+        } else {
+            unsafe { (*ptr).read_byte(offset) }
+        }
+    })
+    .unwrap_or(0)
 }
 
 /// C-ABI wire function for writing a byte at a given offset into a `SharedFrameBuffer`.
@@ -171,7 +259,9 @@ pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_write_byte(
     offset: usize,
     value: u8,
 ) {
-    if !ptr.is_null() {
-        unsafe { (*ptr).write_byte(offset, value) }
-    }
+    let _ = std::panic::catch_unwind(|| {
+        if !ptr.is_null() {
+            unsafe { (*ptr).write_byte(offset, value) }
+        }
+    });
 }
