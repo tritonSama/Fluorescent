@@ -26,6 +26,17 @@ The architecture is decoupled into distinct subsystems:
 | 14 | Asset Pipeline Verification Test | Automated test confirming compilation of test `.gltf` and `.wgsl` into `.fworld` binary | M5 | ORIGINAL_REQUEST §Verification |
 | 15 | E2E Integration Suite | Multi-tier opaque-box E2E test suite covering all 6 pillars and 4 acceptance criteria | M6 | ORIGINAL_REQUEST §Verification |
 
+
+## Milestones
+| # | Name | Scope | Dependencies | Status |
+|---|------|-------|-------------|--------|
+| M1 | Server Architecture & Isolates | `PhysicsServer`, `NavigationServer`, `ServerManager` isolate message passing | None | DONE |
+| M2 | Resource Management | `ResourceManager` reference counting, GPU memory budget, mock texture lifecycle | None | DONE |
+| M3 | Contiguous TypedData ECS | `fluorescent_ecs` sparse-set `Float32List` storage, 10k entity benchmark | None | DONE |
+| M4 | Data-Driven RenderGraph | `RenderGraph` JSON/YAML parsing, DAG cycle detection, topological sort | None | DONE |
+| M5 | Asset Pipeline & Shaders | CLI tool, `.fworld` packaging, Naga/SPIRV-Cross FFI & demo shader transpiler | None | DONE |
+| M6 | E2E Verification & Hardening | Pass 100% E2E tests (Tiers 1-4) followed by Phase 2 adversarial hardening (Tier 5) | M1, M2, M3, M4, M5 | DONE |
+
 ## Phase 1-6 Roadmap
 
 ### Phase 1 — Foundation
