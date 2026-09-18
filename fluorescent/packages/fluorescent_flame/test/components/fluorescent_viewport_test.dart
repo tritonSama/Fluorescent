@@ -4,6 +4,7 @@ import 'package:flame/game.dart';
 import 'package:flame_test/flame_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluorescent_flame/src/components/fluorescent_viewport.dart';
+import 'package:fluorescent_core/fluorescent_core.dart';
 
 class _FluorescentGame extends FlameGame {}
 
@@ -13,7 +14,11 @@ void main() {
       'can be added to a game',
       _FluorescentGame.new,
       (game) async {
+        final world = World3D(name: 'TestWorld');
+        final camera = Camera3D();
         final viewport = FluorescentViewport(
+          world: world,
+          camera: camera,
           position: Vector2(10, 20),
           size: Vector2(100, 200),
         );
@@ -27,7 +32,11 @@ void main() {
     );
 
     test('renders a green rectangle', () {
+      final world = World3D(name: 'TestWorld');
+      final camera = Camera3D();
       final viewport = FluorescentViewport(
+        world: world,
+        camera: camera,
         position: Vector2.zero(),
         size: Vector2(100, 200),
       );

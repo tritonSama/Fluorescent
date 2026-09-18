@@ -3,6 +3,8 @@ import 'dart:isolate';
 import 'package:vector_math/vector_math.dart';
 import '../physics/physics_server.dart';
 import '../navigation/navigation_server.dart';
+import '../input/input_server.dart';
+import '../audio/audio_server.dart';
 
 // ===========================================================================
 // Isolate Protocol Messages
@@ -672,6 +674,8 @@ class ServerManager {
 
   late final _ClientPhysicsProxy _physicsProxy;
   late final _ClientNavigationProxy _navigationProxy;
+  late final _ClientInputProxy _inputProxy;
+  late final _ClientAudioProxy _audioProxy;
 
   bool _isInitialized = false;
   bool _isDisposed = false;
@@ -679,6 +683,8 @@ class ServerManager {
   ServerManager() {
     _physicsProxy = _ClientPhysicsProxy(this);
     _navigationProxy = _ClientNavigationProxy(this);
+    _inputProxy = _ClientInputProxy(this);
+    _audioProxy = _ClientAudioProxy(this);
   }
 
   /// Allocates a globally unique handle ID for resources managed across isolates.
@@ -689,6 +695,12 @@ class ServerManager {
 
   /// The client proxy for navigation queries running on the background isolate.
   NavigationServer get navigation => _navigationProxy;
+
+  /// The client proxy for input management running on the background isolate.
+  InputServer get input => _inputProxy;
+
+  /// The client proxy for audio management running on the background isolate.
+  AudioServer get audio => _audioProxy;
 
   /// Stream of periodic simulation tick updates emitted from the background isolate.
   Stream<ServerTickUpdate> get onTickUpdate => _tickUpdateController.stream;
@@ -854,6 +866,12 @@ void _serverWorkerEntryPoint(SendPort mainSendPort) async {
   final navigation = LocalNavigationServer();
   await navigation.initialize();
 
+  final input = LocalInputServer();
+  await input.initialize();
+
+  final audio = LocalAudioServer();
+  await audio.initialize();
+
   Timer? tickTimer;
 
   void updateTickLoop(bool enabled, double tickRateHz) {
@@ -865,6 +883,8 @@ void _serverWorkerEntryPoint(SendPort mainSendPort) async {
       tickTimer = Timer.periodic(Duration(microseconds: intervalUs), (_) {
         physics.step(dt);
         navigation.step(dt);
+        input.step(dt);
+        audio.step(dt);
 
         // Emit snapshot to main isolate
         final bodyTransforms = <int, List<double>>{};
@@ -911,6 +931,8 @@ void _serverWorkerEntryPoint(SendPort mainSendPort) async {
             final dt = (d['dt'] as num).toDouble();
             physics.step(dt);
             navigation.step(dt);
+            input.step(dt);
+            audio.step(dt);
             break;
 
           // --- Physics Commands ---
@@ -1088,6 +1110,26 @@ void _serverWorkerEntryPoint(SendPort mainSendPort) async {
             );
             break;
 
+
+          case 'input_step': input.step((d['dt'] as num).toDouble()); break;
+          case 'input_register_action': input.registerAction(d['actionName'] as String); break;
+          case 'input_bind_key': input.bindKey(d['actionName'] as String, d['keyCode'] as int); break;
+          case 'input_bind_gamepad_button': input.bindGamepadButton(d['actionName'] as String, d['buttonId'] as int); break;
+
+          case 'audio_step': audio.step((d['dt'] as num).toDouble()); break;
+          case 'audio_create_source': audio.createSource(id: d['id'] as int); break;
+          case 'audio_destroy_source': audio.destroySource(d['id'] as int); break;
+          case 'audio_set_source_position': audio.setSourcePosition(d['sourceId'] as int, _listToV3(d['position'] as List<dynamic>)); break;
+          case 'audio_set_source_volume': audio.setSourceVolume(d['sourceId'] as int, (d['volume'] as num).toDouble()); break;
+          case 'audio_set_source_pitch': audio.setSourcePitch(d['sourceId'] as int, (d['pitch'] as num).toDouble()); break;
+          case 'audio_set_source_minmax_distance': audio.setSourceMinMaxDistance(d['sourceId'] as int, (d['minDistance'] as num).toDouble(), (d['maxDistance'] as num).toDouble()); break;
+          case 'audio_play': audio.play(d['sourceId'] as int, d['resourceId'] as String, loop: d['loop'] as bool); break;
+          case 'audio_stop': audio.stop(d['sourceId'] as int); break;
+          case 'audio_pause': audio.pause(d['sourceId'] as int); break;
+          case 'audio_resume': audio.resume(d['sourceId'] as int); break;
+          case 'audio_set_listener_position': audio.setListenerPosition(_listToV3(d['position'] as List<dynamic>)); break;
+          case 'audio_set_listener_orientation': audio.setListenerOrientation(_listToV3(d['forward'] as List<dynamic>), _listToV3(d['up'] as List<dynamic>)); break;
+
           case 'nav_set_agent_velocity':
             navigation.setAgentVelocity(
               d['agentId'] as int,
@@ -1108,6 +1150,8 @@ void _serverWorkerEntryPoint(SendPort mainSendPort) async {
             tickTimer?.cancel();
             await physics.dispose();
             await navigation.dispose();
+            await input.dispose();
+            await audio.dispose();
             mainSendPort.send(_ServerResponseMessage(requestId: reqId, result: true));
             workerReceivePort.close();
             return;
@@ -1116,6 +1160,8 @@ void _serverWorkerEntryPoint(SendPort mainSendPort) async {
             final dt = (d['dt'] as num).toDouble();
             physics.step(dt);
             navigation.step(dt);
+            input.step(dt);
+            audio.step(dt);
             mainSendPort.send(_ServerResponseMessage(requestId: reqId, result: null));
             break;
 
@@ -1235,4 +1281,108 @@ void _serverWorkerEntryPoint(SendPort mainSendPort) async {
       }
     }
   }
+}
+
+
+class _ClientInputProxy extends InputServer {
+  final ServerManager _manager;
+
+  _ClientInputProxy(this._manager);
+
+  @override
+  bool get isInitialized => _manager.isInitialized;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  void step(double dt) => _manager._sendCommand(_ServerCommandMessage('input_step', {'dt': dt}));
+
+  @override
+  Future<void> dispose() async {}
+
+  @override
+  void registerAction(String actionName) => _manager._sendCommand(_ServerCommandMessage('input_register_action', {'actionName': actionName}));
+
+  @override
+  void bindKey(String actionName, int keyCode) => _manager._sendCommand(_ServerCommandMessage('input_bind_key', {'actionName': actionName, 'keyCode': keyCode}));
+
+  @override
+  void bindGamepadButton(String actionName, int buttonId) => _manager._sendCommand(_ServerCommandMessage('input_bind_gamepad_button', {'actionName': actionName, 'buttonId': buttonId}));
+
+  @override
+  bool isActionPressed(String actionName) => false;
+
+  @override
+  bool isActionJustPressed(String actionName) => false;
+
+  @override
+  bool isActionJustReleased(String actionName) => false;
+
+  @override
+  Vector2 getMousePosition() => Vector2.zero();
+
+  @override
+  Vector2 getMouseDelta() => Vector2.zero();
+
+  @override
+  void processEvent(InputEvent event) {}
+}
+
+class _ClientAudioProxy extends AudioServer {
+  final ServerManager _manager;
+
+  _ClientAudioProxy(this._manager);
+
+  @override
+  bool get isInitialized => _manager.isInitialized;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  void step(double dt) => _manager._sendCommand(_ServerCommandMessage('audio_step', {'dt': dt}));
+
+  @override
+  Future<void> dispose() async {}
+
+  @override
+  int createSource({int? id}) {
+    final actualId = id ?? DateTime.now().microsecondsSinceEpoch;
+    _manager._sendCommand(_ServerCommandMessage('audio_create_source', {'id': actualId}));
+    return actualId;
+  }
+
+  @override
+  void destroySource(int sourceId) => _manager._sendCommand(_ServerCommandMessage('audio_destroy_source', {'id': sourceId}));
+
+  @override
+  void setSourcePosition(int sourceId, Vector3 position) => _manager._sendCommand(_ServerCommandMessage('audio_set_source_position', {'sourceId': sourceId, 'position': _v3ToList(position)}));
+
+  @override
+  void setSourceVolume(int sourceId, double volume) => _manager._sendCommand(_ServerCommandMessage('audio_set_source_volume', {'sourceId': sourceId, 'volume': volume}));
+
+  @override
+  void setSourcePitch(int sourceId, double pitch) => _manager._sendCommand(_ServerCommandMessage('audio_set_source_pitch', {'sourceId': sourceId, 'pitch': pitch}));
+
+  @override
+  void setSourceMinMaxDistance(int sourceId, double minDistance, double maxDistance) => _manager._sendCommand(_ServerCommandMessage('audio_set_source_minmax_distance', {'sourceId': sourceId, 'minDistance': minDistance, 'maxDistance': maxDistance}));
+
+  @override
+  void play(int sourceId, String resourceId, {bool loop = false}) => _manager._sendCommand(_ServerCommandMessage('audio_play', {'sourceId': sourceId, 'resourceId': resourceId, 'loop': loop}));
+
+  @override
+  void stop(int sourceId) => _manager._sendCommand(_ServerCommandMessage('audio_stop', {'sourceId': sourceId}));
+
+  @override
+  void pause(int sourceId) => _manager._sendCommand(_ServerCommandMessage('audio_pause', {'sourceId': sourceId}));
+
+  @override
+  void resume(int sourceId) => _manager._sendCommand(_ServerCommandMessage('audio_resume', {'sourceId': sourceId}));
+
+  @override
+  void setListenerPosition(Vector3 position) => _manager._sendCommand(_ServerCommandMessage('audio_set_listener_position', {'position': _v3ToList(position)}));
+
+  @override
+  void setListenerOrientation(Vector3 forward, Vector3 up) => _manager._sendCommand(_ServerCommandMessage('audio_set_listener_orientation', {'forward': _v3ToList(forward), 'up': _v3ToList(up)}));
 }

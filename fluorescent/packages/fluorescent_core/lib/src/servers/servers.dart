@@ -4,3 +4,5 @@ export 'server_manager.dart';
 export '../physics/physics_server.dart';
 export '../navigation/navigation_server.dart';
 export '../rendering/rendering_server.dart';
+export '../input/input_server.dart';
+export '../audio/audio_server.dart';

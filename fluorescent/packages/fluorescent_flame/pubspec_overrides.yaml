@@ -1,4 +1,4 @@
 # melos_managed_dependency_overrides: fluorescent_core
 dependency_overrides:
   fluorescent_core:
-    path: ..\\fluorescent_core
+    path: ../fluorescent_core
