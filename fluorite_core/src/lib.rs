@@ -6,9 +6,11 @@
 //! ## Modules
 //! - [`allocator`]: Custom memory allocators (`ArenaAllocator`, `DoubleBufferedFrameAllocator`).
 //! - [`api`]: Engine lifecycle and memory allocation API for zero-copy FFI bridge.
+//! - [`rendering`]: Phase 2 Rendering Foundation with dynamic quality tiers.
 
 pub mod allocator;
 pub mod api;
+pub mod rendering;
 pub mod frb_generated;
 
 pub use allocator::{
@@ -22,3 +24,6 @@ pub use api::{
     DEFAULT_ENGINE_FRAME_CAPACITY,
 };
 
+
+
+pub use rendering::{QualityTier, Renderer};
