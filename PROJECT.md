@@ -76,3 +76,19 @@ The architecture is decoupled into distinct subsystems:
 - `fluorescent/packages/fluorescent_core/test/`: `server_architecture_test.dart`, `resource_manager_test.dart`, `render_graph_test.dart`
 - `fluorescent/packages/fluorescent_ecs/test/`: `ecs_benchmark_test.dart`, `ecs_test.dart`
 - `fluorescent/tools/asset_pipeline/test/`: `asset_pipeline_test.dart`
+
+
+## Phase 1 Updates & Memory Enhancements
+- Phase 1 of the Fluorite AAA Engine is complete (The Rust Core Foundation, Memory Allocators, and the Zero-Copy FFI Bridge to Flutter).
+- **Architecture Inspirations**: Godot Server pattern (`RenderingServer`) and O3DE ECS with Atom renderer abstraction.
+- **Strategic Vision**: Targets a 'Unified Application/Game Runtime' combining Flutter for UI/Editor and Rust for core game runtime (ECS, networking).
+- **Integration**: Integrates with Fluorite 3D PBR engine (HeavenlyBound project) using Dart FFI and WebGPU/WebGL2 viewport support.
+- **Target Platforms**: iOS 15+, Android 10+ (Vulkan minSdk 26), Web (WebGPU), Automotive (AAOS/QNX).
+- **Workspace**: Uses Dart 3.5.0+ workspaces (`resolution: workspace`) and Melos.
+- **Testing**: Testing is performed via `melos run test` and `bash test/e2e/run_e2e_tests.sh`.
+
+## Engine Specification & Philosophy
+- **Architecture Manifesto:** Refer to `ARCHITECTURE.md` for the "Ultimate Architecture" design, encompassing the Two-Engine Concept (Creation Runtime vs Game Runtime).
+- **Core Paradigm:** Rust is the authoritative Game Runtime (ECS, Networking, Systems), and Flutter is the first-class UI runtime for both the Creator Platform and in-game UI.
+- **Engine Capabilities:** Segmented into 10 Major Subsystems in Rust, decoupled from the Platform Abstraction and Hardware Rendering layers.
+- **Data-Driven & Scalable:** The engine uses hardware detection to scale dynamically across 3 Capability Tiers (Mobile, Desktop, High-End), powered by a heavily data-driven asset architecture.
