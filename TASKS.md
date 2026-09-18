@@ -79,3 +79,10 @@ This document outlines the organization and task assignments for the upcoming ph
 - Execute the `melos run test` and `bash test/e2e/run_e2e_tests.sh` testing suites.
 - Perform opaque-box E2E tests covering architectural pillars and ensure no regressions occur during multi-agent concurrent execution.
 - Validate FFI memory sharing, isolate communication concurrency, and engine specification compliance.
+
+## Feature Plan: Geofencing Visual Over-Layer
+As part of the Functional Test App, agents must coordinate to build an interactive geofencing visual system:
+1. **`agent_rust_core`**: Implement spatial components (`GeofenceBoundaryComponent`, `SpatialTrackerComponent`) to define boundaries and detect entity intersections inside the ECS.
+2. **`agent_ffi_bridge`**: Expose boundary data and breach events from Rust to Flutter.
+3. **`agent_renderers`**: Build custom renderer passes (e.g., transparent/additive volumetric boundaries or outlined projected decals) to visually denote geofences on top of the 3D world.
+4. **`agent_flutter_editor`**: Implement a Flutter overlay UI (using `Positioned` widgets mapped to 3D world coordinates) to display dynamic labels, warnings, and configuration handles above the geofences.

@@ -92,3 +92,9 @@ The architecture is decoupled into distinct subsystems:
 - **Core Paradigm:** Rust is the authoritative Game Runtime (ECS, Networking, Systems), and Flutter is the first-class UI runtime for both the Creator Platform and in-game UI.
 - **Engine Capabilities:** Segmented into 10 Major Subsystems in Rust, decoupled from the Platform Abstraction and Hardware Rendering layers.
 - **Data-Driven & Scalable:** The engine uses hardware detection to scale dynamically across 3 Capability Tiers (Mobile, Desktop, High-End), powered by a heavily data-driven asset architecture.
+
+## Functional Test App Definition
+Currently, the project is configured as a **functional test app** acting as a unified proving ground for the dual-engine architecture. It demonstrates:
+- A live Game Runtime powered by Rust driving a headless ECS simulation.
+- A functional Creator Platform (Flutter) overlapping standard Flutter UI with the natively rendered 3D viewport.
+- Specialized visual overlays, such as geofencing boundaries, rendered natively and managed via Flutter controls to validate inter-engine communication.

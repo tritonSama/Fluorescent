@@ -302,3 +302,9 @@ Game Project
 - **Unreal** gives you the benchmark for AAA capability.
 
 The goal is to extract architectural ideas and build a coherent engine centered around a formal engine specification, preventing the project from turning into an increasingly difficult fork.
+
+## Functional Test App Focus
+The architecture is actively being validated through a **Functional Test App** designed to showcase both runtimes (Game Runtime and Creation Runtime) operating concurrently. A major goal of this test application is to render an over layer of visuals for geofencing.
+- Rust computes spatial partitioning and handles simulation logic for entities crossing geofences.
+- The Renderer constructs glowing/transparent geometric bounds representing the fence.
+- Flutter UI overlays control panels and real-time alerts when entities breach these boundaries.
