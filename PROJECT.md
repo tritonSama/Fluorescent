@@ -26,6 +26,7 @@ The architecture is decoupled into distinct subsystems:
 | 14 | Asset Pipeline Verification Test | Automated test confirming compilation of test `.gltf` and `.wgsl` into `.fworld` binary | M5 | ORIGINAL_REQUEST §Verification |
 | 15 | E2E Integration Suite | Multi-tier opaque-box E2E test suite covering all 6 pillars and 4 acceptance criteria | M6 | ORIGINAL_REQUEST §Verification |
 
+
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
@@ -35,6 +36,73 @@ The architecture is decoupled into distinct subsystems:
 | M4 | Data-Driven RenderGraph | `RenderGraph` JSON/YAML parsing, DAG cycle detection, topological sort | None | DONE |
 | M5 | Asset Pipeline & Shaders | CLI tool, `.fworld` packaging, Naga/SPIRV-Cross FFI & demo shader transpiler | None | DONE |
 | M6 | E2E Verification & Hardening | Pass 100% E2E tests (Tiers 1-4) followed by Phase 2 adversarial hardening (Tier 5) | M1, M2, M3, M4, M5 | DONE |
+
+## Phase 1-6 Roadmap
+
+### Phase 1 — Foundation
+* Fluorite
+* Rust core
+* ECS
+* Flutter integration
+* Vulkan
+
+### Phase 2 — Engine
+* Rendering
+* Physics
+* Animation
+* Audio
+* Assets
+* Scenes
+* Input
+* Scripting
+
+### Phase 3 — AAA
+* GPU-driven rendering
+* Virtual geometry
+* Dynamic GI
+* Virtual shadows
+* GPU VFX
+* Advanced animation
+* Destruction
+* World streaming
+* PCG
+
+### Phase 4 — Online
+* Replication
+* Prediction
+* Rollback
+* Dedicated servers
+* Matchmaking
+* Voice
+* Accounts
+* Persistence
+
+### Phase 5 — Developer ecosystem
+* Editor
+* Visual scripting
+* Material editor
+* Shader editor
+* Animation editor
+* VFX editor
+* World editor
+* Profiler
+* Asset marketplace
+* SDK
+
+### Phase 6 — Android Desktop specialization
+* Hardware detection
+* Dynamic quality tiers
+* Vulkan optimization
+* Desktop windowing
+* Gamepad
+* Keyboard/mouse
+* Multi-monitor
+* High refresh rate
+* HDR
+* Upscaling
+* Dynamic resolution
+* Power/performance management
+
 
 ## Interface Contracts
 
@@ -86,3 +154,54 @@ The architecture is decoupled into distinct subsystems:
 - **Target Platforms**: iOS 15+, Android 10+ (Vulkan minSdk 26), Web (WebGPU), Automotive (AAOS/QNX).
 - **Workspace**: Uses Dart 3.5.0+ workspaces (`resolution: workspace`) and Melos.
 - **Testing**: Testing is performed via `melos run test` and `bash test/e2e/run_e2e_tests.sh`.
+
+## Strategic Vision
+
+The core strategic vision for Fluorescent is a **Unified Application/Game Runtime**.
+
+```text
+                    YOUR ENGINE
+                         │
+             ┌───────────┴───────────┐
+             │                       │
+          Flutter                  Rust
+             │                       │
+       Application UI          Game Runtime
+             │                       │
+             └───────────┬───────────┘
+                         │
+                    3D Renderer
+                         │
+              ┌──────────┴──────────┐
+              │                     │
+           Android               Desktop
+              │                     │
+           Vulkan                Vulkan
+```
+
+The goal is a scalable engine where developers can build the game, launcher, UI, social systems, inventory, marketplace, settings, and editor tooling within a single cohesive environment. We embrace O3DE's baseline for networking, terrain, and asset processing to allow us to focus heavily on modern rendering techniques, an intuitive editor (built in Flutter), and deep multiplayer integration.
+
+## Agent Roles
+
+To effectively implement this complex architecture, we define the following agent roles for concurrent multi-agent execution:
+
+1. **Rendering Architect Agent**: Focuses on the core graphics pipeline, including the Vulkan/Metal bindings, the Render Graph, and Shader Toolchain (Phase 2 and Phase 3 features like dynamic quality tiers and GPU VFX).
+2. **Systems Programmer Agent**: Responsible for the underlying Rust core foundation, ECS, memory management, and `flutter_rust_bridge` zero-copy communication.
+3. **Gameplay/Simulation Agent**: Implements the Physics, Navigation, Animation, and Procedural Content Generation (PCG) systems.
+4. **Networking & Cloud Agent**: Handles Phase 4 requirements, including multiplayer replication, rollback, dedicated server logic, and cloud integrations (e.g., Firebase, OpenRouteService for mapping).
+5. **Tools & Editor Agent**: Develops the Flutter-based Editor UI, Visual Scripting, Profiler, and Asset Pipeline tooling (Phase 5).
+6. **UI/UX & Mobile Integration Agent**: Focuses on Flutter UI application layers, including social feeds, background location tracking, battery-efficient GPS, and push notifications.
+
+## Functional Test App & Geofencing Visuals
+
+To validate the engine's capabilities, we will build a Functional Test App demonstrating a real-world scenario:
+
+### Test App Scope: Community & Rally Map
+A live social mapping app showcasing location tracking and geofencing.
+
+#### Features
+- **Live Social Map**: Integrates `google_maps_flutter` with custom Slippy Map tiles, displaying drivers within a specified radius.
+- **Geofencing Visuals**: Overlay a dynamic visual layer on the map representing Geofences (e.g., event zones or speed traps), with enter/exit events firing in the engine.
+- **Background Location**: Integrates background location tracking for continuous updates.
+- **Multiplayer Sync**: Connects to the Rust core for sub-second position broadcasting using a websocket/data-channel.
+- **Social Feed**: A basic UI layer (Flutter) to display user check-ins and rally events, verifying the Unified Application Runtime model.
