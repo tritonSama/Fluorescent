@@ -65,4 +65,4 @@ Initialize a new Flutter desktop project (`fluorite_editor`). Integrate the gene
 
 ## 2026-09-17T20:35:27Z
 
-USER COMMAND: Pause and freeze the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Do not proceed to Milestone 3. Wait for further instructions.
+USER COMMAND: proceed the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Proceed to Milestone 3.

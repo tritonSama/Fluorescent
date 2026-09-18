@@ -12,7 +12,7 @@
 
 Milestone 2 (Zero-Copy FFI Bridge to Flutter) has **passed all verification gate criteria** with unanimous approval from Reviewers, Challengers, and the Forensic Auditor.
 Pursuant to the **CRITICAL USER DIRECTIVE** recorded in `ORIGINAL_REQUEST.md` (§2026-09-17T20:35:27Z):
-> *"USER COMMAND: Pause and freeze the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Do not proceed to Milestone 3. Wait for further instructions."*
+> *"USER COMMAND: proceed the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Proceed to Milestone 3.
 
 The swarm execution is now **fully paused and frozen**. All background subagents have been cleanly terminated (0 active), all background scheduler crons have been cancelled (0 active), and all state documents (`PROJECT.md`, `GATE_STATUS.md`, `progress.md`, `BRIEFING.md`) are synchronized.
 

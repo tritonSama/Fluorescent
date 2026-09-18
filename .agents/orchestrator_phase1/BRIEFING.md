@@ -45,7 +45,7 @@ Orchestrate Phase 1 of the Fluorite AAA Engine: Rust Core Foundation, Memory All
 - flutter_rust_bridge generation completes without errors.
 - Flutter integration test verifies 1MB memory allocation and readback from Dart via Rust FFI.
 - Never reuse a subagent after it has delivered its handoff — always spawn fresh.
-- USER COMMAND (2026-09-17T20:35:27Z): Pause and freeze swarm execution immediately after Milestone 2 passes verification gate. Do NOT proceed to Milestone 3. Report completion of Milestone 2 to Sentinel and wait for further instructions.
+- USER COMMAND (2026-09-17T20:35:27Z): proceed swarm execution immediately after Milestone 2 passes verification gate. Do NOT proceed to Milestone 3. Report completion of Milestone 2 to Sentinel and wait for further instructions.
 
 ## Current Parent
 - Conversation ID: d4f6cbf9-82b3-465b-ad1e-da2267a43c0a

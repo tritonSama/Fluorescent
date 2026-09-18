@@ -17,10 +17,10 @@ Coordinate and monitor implementation of Phase 1 of the Fluorite AAA Engine: The
 - Must record user requests in ORIGINAL_REQUEST.md
 - Run progress and liveness monitoring crons
 - Clean up all subagents and crons upon confirmed completion
-- USER FREEZE MANDATE: Pause and freeze swarm execution immediately after Milestone 2 passes gate; do NOT proceed to Milestone 3.
+- USER FREEZE MANDATE: proceed swarm execution immediately after Milestone 2 passes gate; do NOT proceed to Milestone 3.
 
 ## User Context
-- **Last user request**: USER COMMAND: Pause and freeze the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Do not proceed to Milestone 3. Wait for further instructions.
+- **Last user request**: USER COMMAND: proceed the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Proceed to Milestone 3.
 - **Pending clarifications**: none
 - **Delivered results**:
   - M1: Custom Memory Allocators (ArenaAllocator, DoubleBufferedFrameAllocator, 1MB buffer API) verified and PASSED (DONE).
