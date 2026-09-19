@@ -19,6 +19,10 @@ class FluorescentViewport extends PositionComponent {
   /// The ID of the native texture. If null, a fallback is rendered.
   final int? textureId;
 
+  static final _stubPaint = Paint()
+    ..color = const Color(0xFF6200EE) // A placeholder purple color
+    ..style = PaintingStyle.fill;
+
   FluorescentViewport({
     required this.world,
     required this.camera,
@@ -44,11 +48,7 @@ class FluorescentViewport extends PositionComponent {
 
     if (textureId == null) {
       // Stub: Draw a placeholder rectangle indicating the 3D viewport area
-      final paint = Paint()
-        ..color = const Color(0xFF6200EE) // A placeholder purple color
-        ..style = PaintingStyle.fill;
-      
-      canvas.drawRect(size.toRect(), paint);
+      canvas.drawRect(size.toRect(), _stubPaint);
 
       final textPainter = TextPainter(
         text: TextSpan(
