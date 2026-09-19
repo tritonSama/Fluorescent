@@ -32,10 +32,6 @@ class FluorescentViewport extends PositionComponent {
     super.size,
   }) : config = config ?? RenderConfig();
 
-  // Cache heavily used objects to avoid GC overhead in the render loop.
-  static final _stubPaint = Paint()
-    ..color = const Color(0xFF6200EE) // A placeholder purple color
-    ..style = PaintingStyle.fill;
 
   @override
   void render(Canvas canvas) {
