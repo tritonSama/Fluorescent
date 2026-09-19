@@ -157,29 +157,58 @@ The architecture is decoupled into distinct subsystems:
 
 ## Strategic Vision
 
-The core strategic vision for Fluorescent is a **Unified Application/Game Runtime**.
+Fluorescent is **not** a modified Fluorite engine — it is a **new, layered game/runtime platform** built from Fluorite's ideas and technology. The formal engine specification is documented in [`fluorescent/docs/ENGINE_SPECIFICATION.md`](fluorescent/docs/ENGINE_SPECIFICATION.md).
+
+The core architectural principle:
+
+> **Flutter for the application/editor experience, Rust for the core runtime, Fluorite/Filament-inspired rendering for the visual layer, and an O3DE/Unreal-class systems architecture underneath.**
+
+Key concepts:
+- **Two Engines in One**: A Creation Runtime (Flutter editor) and a Game Runtime (Rust core) sharing the same project.
+- **Rust Is the Heart**: All gameplay state, physics, networking, and rendering commands are owned by Rust. Flutter is a high-level interface, not the engine itself.
+- **Scalable Renderer**: Same game, automatically adapted from mobile (Tier 1) to desktop (Tier 2) to high-end (Tier 3) via hardware capability detection.
+- **Data-Driven**: All game content described as data (YAML/JSON), enabling modding, hot-reloading, and marketplace support.
+- **10 Major Subsystems**: Core/ECS, Rendering, Physics, Animation, Audio, VFX, World/Terrain, AI, Networking, Asset/Build Pipeline.
+- **10 Creator Tools**: Scene Editor, World Editor, Material Editor, Animation Editor, VFX Editor, Audio Editor, AI/Behavior Editor, Visual Scripting, Profiler, Debugger.
 
 ```text
-                    YOUR ENGINE
-                         │
-             ┌───────────┴───────────┐
-             │                       │
-          Flutter                  Rust
-             │                       │
-       Application UI          Game Runtime
-             │                       │
-             └───────────┬───────────┘
-                         │
-                    3D Renderer
-                         │
-              ┌──────────┴──────────┐
-              │                     │
-           Android               Desktop
-              │                     │
-           Vulkan                Vulkan
+                  ┌─────────────────────┐
+                  │     GAME / APP      │
+                  └──────────┬──────────┘
+                             │
+                  ┌──────────▼──────────┐
+                  │     FLUTTER UI      │
+                  └──────────┬──────────┘
+                             │
+                  ┌──────────▼──────────┐
+                  │     ENGINE API      │
+                  └──────────┬──────────┘
+                             │
+                  ┌──────────▼──────────┐
+                  │    RUST RUNTIME     │
+                  │                     │
+                  │ ECS • Jobs • Memory │
+                  │ Gameplay • Network  │
+                  └──────────┬──────────┘
+                             │
+          ┌──────────────────┼───────────────────┐
+          │                  │                   │
+     ┌────▼────┐       ┌─────▼─────┐       ┌─────▼─────┐
+     │ RENDER  │       │ SIMULATION│       │ SERVICES  │
+     └────┬────┘       └─────┬─────┘       └─────┬─────┘
+          │                  │                   │
+          └──────────────────┼───────────────────┘
+                             │
+                  ┌──────────▼──────────┐
+                  │ PLATFORM ABSTRACTION│
+                  └──────────┬──────────┘
+                             │
+             ┌───────────────┼────────────────┐
+             │               │                │
+          Android          Desktop          Server
 ```
 
-The goal is a scalable engine where developers can build the game, launcher, UI, social systems, inventory, marketplace, settings, and editor tooling within a single cohesive environment. We embrace O3DE's baseline for networking, terrain, and asset processing to allow us to focus heavily on modern rendering techniques, an intuitive editor (built in Flutter), and deep multiplayer integration.
+The goal is a scalable engine where developers can build the game, launcher, UI, social systems, inventory, marketplace, settings, and editor tooling within a single cohesive environment.
 
 ## Agent Roles
 

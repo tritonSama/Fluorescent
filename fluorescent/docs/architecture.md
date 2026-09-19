@@ -1,7 +1,10 @@
 # FLUORESCENT TECHNICAL SPECIFICATION & PROJECT SCAFFOLD
 
+> [!IMPORTANT]
+> **This document is the original 0.1.0-alpha scaffold.** For the current formal engine specification — including the dual-runtime architecture, Rust-as-heart philosophy, AAA subsystem breakdown, and phased roadmap — see **[ENGINE_SPECIFICATION.md](ENGINE_SPECIFICATION.md)**.
+
 **Version:** 0.1.0-alpha 
-**Status:** Architecture Draft 
+**Status:** Superseded by ENGINE_SPECIFICATION.md v0.2.0  
 **Target Platforms:** iOS 15+, Android 10+, Web (WebGPU), Automotive (AAOS/QNX) 
  
 ## 1. EXECUTIVE SUMMARY 
