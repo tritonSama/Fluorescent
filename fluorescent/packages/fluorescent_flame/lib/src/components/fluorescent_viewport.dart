@@ -19,6 +19,10 @@ class FluorescentViewport extends PositionComponent {
   /// The ID of the native texture. If null, a fallback is rendered.
   final int? textureId;
 
+  static final _stubPaint = Paint()
+    ..color = const Color(0xFF6200EE) // A placeholder purple color
+    ..style = PaintingStyle.fill;
+
   FluorescentViewport({
     required this.world,
     required this.camera,
