@@ -31,7 +31,7 @@ void main() {
       },
     );
 
-    test('renders a green rectangle', () {
+    test('renders a purple rectangle as stub and text', () {
       final world = World3D(name: 'TestWorld');
       final camera = Camera3D();
       final viewport = FluorescentViewport(
@@ -41,13 +41,35 @@ void main() {
         size: Vector2(100, 200),
       );
 
-      final recorder = PictureRecorder();
-      final canvas = Canvas(recorder);
-      
-      viewport.render(canvas);
+      expect(
+        (Canvas canvas) => viewport.render(canvas),
+        paints
+          ..rect(
+            rect: const Rect.fromLTWH(0, 0, 100, 200),
+            color: const Color(0xFF6200EE),
+            style: PaintingStyle.fill,
+          )
+          ..paragraph(),
+      );
+    });
 
-      final picture = recorder.endRecording();
-      expect(picture, isNotNull);
+    test('does not render stub when textureId is provided', () {
+      final world = World3D(name: 'TestWorld');
+      final camera = Camera3D();
+      final viewport = FluorescentViewport(
+        world: world,
+        camera: camera,
+        position: Vector2.zero(),
+        size: Vector2(100, 200),
+        textureId: 1,
+      );
+
+      expect(
+        (Canvas canvas) {
+          viewport.render(canvas);
+        },
+        paintsNothing,
+      );
     });
   });
 }
