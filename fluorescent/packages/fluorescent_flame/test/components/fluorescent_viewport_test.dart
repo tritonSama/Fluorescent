@@ -45,7 +45,7 @@ void main() {
       },
     );
 
-    test('renders a purple rectangle when textureId is null', () {
+    test('renders a purple rectangle when textureId is null', () async {
       final world = World3D(name: 'TestWorld');
       final camera = Camera3D();
       final viewport = FluorescentViewport(
@@ -54,6 +54,8 @@ void main() {
         position: Vector2.zero(),
         size: Vector2(100, 200),
       );
+
+      await viewport.onLoad();
 
       final canvas = _MockCanvas();
 
@@ -63,7 +65,7 @@ void main() {
       expect(canvas.drawnColor?.value, equals(0xFF6200EE));
     });
 
-    test('does not render stub when textureId is provided', () {
+    test('does not render stub when textureId is provided', () async {
       final world = World3D(name: 'TestWorld');
       final camera = Camera3D();
       final viewport = FluorescentViewport(
@@ -73,6 +75,8 @@ void main() {
         position: Vector2.zero(),
         size: Vector2(100, 200),
       );
+
+      await viewport.onLoad();
 
       final canvas = _MockCanvas();
       

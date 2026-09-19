@@ -18,7 +18,7 @@ class MockCanvas implements Canvas {
 }
 
 void main() {
-  test('Render benchmark', () {
+  test('Render benchmark', () async {
     final world = World3D(name: 'Benchmark World');
     final camera = Camera3D();
     final viewport = FluorescentViewport(
@@ -26,6 +26,8 @@ void main() {
       camera: camera,
       size: Vector2(800, 600),
     );
+
+    await viewport.onLoad();
 
     final canvas = MockCanvas();
 

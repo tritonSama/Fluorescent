@@ -23,6 +23,9 @@ class FluorescentViewport extends PositionComponent {
     ..color = const Color(0xFF6200EE) // A placeholder purple color
     ..style = PaintingStyle.fill;
 
+  // Cache TextPainter to avoid GC overhead in the render loop.
+  late final TextPainter _textPainter;
+
   FluorescentViewport({
     required this.world,
     required this.camera,
@@ -32,10 +35,17 @@ class FluorescentViewport extends PositionComponent {
     super.size,
   }) : config = config ?? RenderConfig();
 
-  // Cache heavily used objects to avoid GC overhead in the render loop.
-  static final _stubPaint = Paint()
-    ..color = const Color(0xFF6200EE) // A placeholder purple color
-    ..style = PaintingStyle.fill;
+  @override
+  Future<void> onLoad() async {
+    _textPainter = TextPainter(
+      text: TextSpan(
+        text: '3D Viewport Stub\nWorld: ${world.name}',
+        style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 14),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+  }
+
 
   @override
   void render(Canvas canvas) {
@@ -55,17 +65,9 @@ class FluorescentViewport extends PositionComponent {
       // Stub: Draw a placeholder rectangle indicating the 3D viewport area
       canvas.drawRect(size.toRect(), _stubPaint);
 
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: '3D Viewport Stub\nWorld: ${world.name}',
-          style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 14),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-      textPainter.layout();
-      textPainter.paint(
+      _textPainter.paint(
         canvas,
-        Offset(size.x / 2 - textPainter.width / 2, size.y / 2 - textPainter.height / 2),
+        Offset(size.x / 2 - _textPainter.width / 2, size.y / 2 - _textPainter.height / 2),
       );
     }
   }
