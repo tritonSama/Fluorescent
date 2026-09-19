@@ -26,3 +26,27 @@
 - Build the Flutter UI layer for a social feed (club posts, recent activities).
 - Build basic DMs/group channel UI.
 - (Backend integration points left open for Firebase/Stream integration later).
+
+## Phase 3: AAA Engine Features
+
+### 1. GPU-Driven Rendering & Virtual Geometry
+- Implement compute shader-based culling (frustum, occlusion).
+- Develop virtual geometry system (Nanite-style micro-polygon rendering).
+- Transition to unified GPU command buffers to minimize CPU submission overhead.
+
+### 2. Advanced Lighting (Dynamic GI & Virtual Shadows)
+- Implement screen-space or hardware-accelerated raytraced Dynamic Global Illumination.
+- Build Virtual Shadow Maps (VSM) for high-resolution, scalable shadow rendering.
+- Integrate temporal upscaling techniques (TAA, FSR2) into the render graph.
+
+### 3. GPU VFX & Particles
+- Build a node-based GPU particle simulation framework.
+- Enable high-count particle rendering (Niagara-style) interacting with the depth/GBuffer.
+
+### 4. Advanced Animation & Destruction
+- Implement runtime bone/skeletal IK constraints and state machines in the Rust engine.
+- Integrate physics-driven destruction (Chaos-style chunk separation and rigid body spawning).
+
+### 5. World Streaming & PCG
+- Implement spatial hashing and chunked world streaming for open-world scales.
+- Develop Procedural Content Generation (PCG) frameworks for terrain generation, vegetation placement, and biome mapping.
