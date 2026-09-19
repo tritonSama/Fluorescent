@@ -37,6 +37,8 @@ dependencies:
   google_maps_flutter: ^2.18.1
   fluorescent_core:
     path: ../../packages/fluorescent_core
+  http: ^1.6.0
+  vector_math: ^2.2.0
 
 dev_dependencies:
   flutter_test:

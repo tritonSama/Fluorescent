@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // ignore: unused_import
 import 'package:fluorescent_core/fluorescent_core.dart'; // Just validating import
 import 'engine_bridge.dart';
+import 'slippy_map_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,7 +74,7 @@ class _MapScreenState extends State<MapScreen> {
   void _initTileOverlay() {
     final TileOverlay tileOverlay = TileOverlay(
       tileOverlayId: const TileOverlayId('osm_tiles'),
-      tileProvider: _OSMTileProvider(),
+      tileProvider: SlippyMapTileProvider(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
       zIndex: 1,
     );
     setState(() {
@@ -161,10 +162,3 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
-class _OSMTileProvider implements TileProvider {
-  @override
-  Future<Tile> getTile(int x, int y, int? zoom) async {
-    // Stub OSM Tile Provider
-    return Tile(0, 0, null);
-  }
-}
