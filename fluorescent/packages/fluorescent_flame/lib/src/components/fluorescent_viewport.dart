@@ -28,6 +28,11 @@ class FluorescentViewport extends PositionComponent {
     super.size,
   }) : config = config ?? RenderConfig();
 
+  // Cache heavily used objects to avoid GC overhead in the render loop.
+  static final _stubPaint = Paint()
+    ..color = const Color(0xFF6200EE) // A placeholder purple color
+    ..style = PaintingStyle.fill;
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
@@ -44,11 +49,7 @@ class FluorescentViewport extends PositionComponent {
 
     if (textureId == null) {
       // Stub: Draw a placeholder rectangle indicating the 3D viewport area
-      final paint = Paint()
-        ..color = const Color(0xFF6200EE) // A placeholder purple color
-        ..style = PaintingStyle.fill;
-      
-      canvas.drawRect(size.toRect(), paint);
+      canvas.drawRect(size.toRect(), _stubPaint);
 
       final textPainter = TextPainter(
         text: TextSpan(
