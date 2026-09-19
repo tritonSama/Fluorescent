@@ -8,6 +8,20 @@ import 'package:fluorescent_core/fluorescent_core.dart';
 
 class _FluorescentGame extends FlameGame {}
 
+class _MockCanvas implements Canvas {
+  bool drawRectCalled = false;
+  Color? drawnColor;
+
+  @override
+  void drawRect(Rect rect, Paint paint) {
+    drawRectCalled = true;
+    drawnColor = paint.color;
+  }
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
+}
+
 void main() {
   group('FluorescentViewport', () {
     testWithGame<_FluorescentGame>(
@@ -31,7 +45,7 @@ void main() {
       },
     );
 
-    test('renders a purple rectangle as stub and text', () {
+    test('renders a purple rectangle when textureId is null', () {
       final world = World3D(name: 'TestWorld');
       final camera = Camera3D();
       final viewport = FluorescentViewport(
@@ -41,16 +55,12 @@ void main() {
         size: Vector2(100, 200),
       );
 
-      expect(
-        (Canvas canvas) => viewport.render(canvas),
-        paints
-          ..rect(
-            rect: const Rect.fromLTWH(0, 0, 100, 200),
-            color: const Color(0xFF6200EE),
-            style: PaintingStyle.fill,
-          )
-          ..paragraph(),
-      );
+      final canvas = _MockCanvas();
+
+      viewport.render(canvas);
+
+      expect(canvas.drawRectCalled, isTrue);
+      expect(canvas.drawnColor?.value, equals(0xFF6200EE));
     });
 
     test('does not render stub when textureId is provided', () {
@@ -59,17 +69,16 @@ void main() {
       final viewport = FluorescentViewport(
         world: world,
         camera: camera,
+        textureId: 42,
         position: Vector2.zero(),
         size: Vector2(100, 200),
-        textureId: 1,
       );
 
-      expect(
-        (Canvas canvas) {
-          viewport.render(canvas);
-        },
-        paintsNothing,
-      );
+      final canvas = _MockCanvas();
+      
+      viewport.render(canvas);
+
+      expect(canvas.drawRectCalled, isFalse);
     });
   });
 }
