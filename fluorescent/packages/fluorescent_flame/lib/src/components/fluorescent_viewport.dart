@@ -32,7 +32,6 @@ class FluorescentViewport extends PositionComponent {
     super.size,
   }) : config = config ?? RenderConfig();
 
-
   @override
   void render(Canvas canvas) {
     super.render(canvas);
