@@ -58,6 +58,9 @@ void main() {
         (Canvas canvas) => viewport.render(canvas),
         paints
           ..rect(color: const Color(0xFF6200EE))
+          ..something((Symbol methodName, List<dynamic> arguments) {
+            return methodName == #drawParagraph;
+          }),
           ..paragraph(),
       );
     });
@@ -75,6 +78,9 @@ void main() {
 
       await viewport.onLoad();
 
+      expect(
+        (Canvas canvas) => viewport.render(canvas),
+        paintsNothing,
       final canvas = _MockCanvas();
 
       viewport.render(canvas);
