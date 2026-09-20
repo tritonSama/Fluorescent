@@ -8,20 +8,6 @@ import 'package:fluorescent_core/fluorescent_core.dart';
 
 class _FluorescentGame extends FlameGame {}
 
-class _MockCanvas implements Canvas {
-  bool drawRectCalled = false;
-  Color? drawnColor;
-
-  @override
-  void drawRect(Rect rect, Paint paint) {
-    drawRectCalled = true;
-    drawnColor = paint.color;
-  }
-
-  @override
-  void noSuchMethod(Invocation invocation) {}
-}
-
 void main() {
   group('FluorescentViewport', () {
     testWithGame<_FluorescentGame>(
@@ -45,7 +31,7 @@ void main() {
       },
     );
 
-    test('renders a purple rectangle when textureId is null', () async {
+    test('renders a purple rectangle and text when textureId is null', () async {
       final world = World3D(name: 'TestWorld');
       final camera = Camera3D();
       final viewport = FluorescentViewport(
@@ -57,12 +43,14 @@ void main() {
 
       await viewport.onLoad();
 
-      final canvas = _MockCanvas();
-
-      viewport.render(canvas);
-
-      expect(canvas.drawRectCalled, isTrue);
-      expect(canvas.drawnColor?.value, equals(0xFF6200EE));
+      expect(
+        (Canvas canvas) => viewport.render(canvas),
+        paints
+          ..rect(color: const Color(0xFF6200EE))
+          ..something((Symbol methodName, List<dynamic> arguments) {
+            return methodName == #drawParagraph;
+          }),
+      );
     });
 
     test('does not render stub when textureId is provided', () async {
@@ -78,11 +66,10 @@ void main() {
 
       await viewport.onLoad();
 
-      final canvas = _MockCanvas();
-      
-      viewport.render(canvas);
-
-      expect(canvas.drawRectCalled, isFalse);
+      expect(
+        (Canvas canvas) => viewport.render(canvas),
+        paintsNothing,
+      );
     });
   });
 }
