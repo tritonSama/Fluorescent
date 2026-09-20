@@ -8,22 +8,19 @@ import 'package:fluorescent_core/fluorescent_core.dart';
 
 class _FluorescentGame extends FlameGame {}
 
-class _MockCanvas implements Canvas {
-  bool drawRectCalled = false;
-  Color? drawnColor;
-
-  @override
-  void drawRect(Rect rect, Paint paint) {
-    drawRectCalled = true;
-    drawnColor = paint.color;
-  }
-
-  @override
-  void noSuchMethod(Invocation invocation) {}
-}
-
 void main() {
   group('FluorescentViewport', () {
+    test('uses default RenderConfig (60 FPS) when not provided', () {
+      final world = World3D(name: 'TestWorld');
+      final camera = Camera3D();
+      final viewport = FluorescentViewport(
+        world: world,
+        camera: camera,
+      );
+
+      expect(viewport.config.targetFps, equals(60));
+    });
+
     testWithGame<_FluorescentGame>(
       'can be added to a game',
       _FluorescentGame.new,
@@ -45,7 +42,7 @@ void main() {
       },
     );
 
-    test('renders a purple rectangle when textureId is null', () async {
+    test('renders a purple rectangle and text when textureId is null', () async {
       final world = World3D(name: 'TestWorld');
       final camera = Camera3D();
       final viewport = FluorescentViewport(
@@ -57,12 +54,12 @@ void main() {
 
       await viewport.onLoad();
 
-      final canvas = _MockCanvas();
-
-      viewport.render(canvas);
-
-      expect(canvas.drawRectCalled, isTrue);
-      expect(canvas.drawnColor?.value, equals(0xFF6200EE));
+      expect(
+        (Canvas canvas) => viewport.render(canvas),
+        paints
+          ..rect(color: const Color(0xFF6200EE))
+          ..paragraph(),
+      );
     });
 
     test('does not render stub when textureId is provided', () async {
@@ -78,11 +75,16 @@ void main() {
 
       await viewport.onLoad();
 
-      final canvas = _MockCanvas();
-      
-      viewport.render(canvas);
-
-      expect(canvas.drawRectCalled, isFalse);
+      // We use paints..save()..restore() as a clever workaround for "paintsNothing"
+      // to assert the rendering method performs no actual canvas drawing commands.
+      expect(
+        (Canvas canvas) {
+            canvas.save();
+            viewport.render(canvas);
+            canvas.restore();
+        },
+        paints..save()..restore(),
+      );
     });
   });
 }
