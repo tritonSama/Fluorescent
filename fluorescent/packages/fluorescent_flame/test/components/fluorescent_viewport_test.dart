@@ -75,6 +75,11 @@ void main() {
 
       await viewport.onLoad();
 
+      final canvas = _MockCanvas();
+
+      viewport.render(canvas);
+
+      expect(canvas.drawRectCalled, isFalse);
       // We use paints..save()..restore() as a clever workaround for "paintsNothing"
       // to assert the rendering method performs no actual canvas drawing commands.
       expect(

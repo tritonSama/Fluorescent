@@ -15,7 +15,7 @@ class FluorescentViewport extends PositionComponent {
   final World3D world;
   final Camera3D camera;
   final RenderConfig config;
-  
+
   /// The ID of the native texture. If null, a fallback is rendered.
   final int? textureId;
 
@@ -26,6 +26,10 @@ class FluorescentViewport extends PositionComponent {
   // Cache TextPainter to avoid GC overhead in the render loop.
   late final TextPainter _textPainter;
 
+  // Cache the text offset to avoid Offset allocation in the render loop.
+  late Offset _textOffset;
+
+  bool _isPainterInitialized = false;
   // Cache Rect and Offset to avoid allocations in the render loop.
   late Rect _cachedRect;
   late Offset _cachedTextOffset;
@@ -49,12 +53,28 @@ class FluorescentViewport extends PositionComponent {
       textDirection: TextDirection.ltr,
     )..layout();
 
+    _isPainterInitialized = true;
+
+    _updateTextOffset();
+
+    size.addListener(_updateTextOffset);
     _updateCachedLayout();
   }
 
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
+    // When size changes, re-layout or re-calculate center position.
+    // Ensure that _textPainter has been initialized before updating offset.
+    // onGameResize is called before onLoad in Flame, so we must check.
+    _updateTextOffset();
+  }
+
+  void _updateTextOffset() {
+    if (_isPainterInitialized) {
+      _textOffset = Offset(size.x / 2 - _textPainter.width / 2,
+          size.y / 2 - _textPainter.height / 2);
+    }
     // Safe check since onGameResize can be called before onLoad finishes
     if (isLoaded) {
       _updateCachedLayout();
@@ -72,11 +92,11 @@ class FluorescentViewport extends PositionComponent {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    
+
     // In Flame, to render a Flutter Widget (like Texture) inline directly on the canvas,
     // we would typically use an overlay or a custom WidgetComponent. However, Flame
     // does not support drawing a Flutter `Texture` widget directly via Canvas API
-    // (there is no `canvas.drawTexture()`). 
+    // (there is no `canvas.drawTexture()`).
     //
     // For full zero-copy integration, the Texture needs to be in the Flutter Widget tree.
     // So this component itself manages its layout in Flame, but the actual Texture
@@ -89,6 +109,7 @@ class FluorescentViewport extends PositionComponent {
 
       _textPainter.paint(
         canvas,
+        _textOffset,
         _cachedTextOffset,
       );
     }
