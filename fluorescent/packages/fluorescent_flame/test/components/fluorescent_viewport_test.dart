@@ -79,7 +79,7 @@ void main() {
       await viewport.onLoad();
 
       final canvas = _MockCanvas();
-      
+
       viewport.render(canvas);
 
       expect(canvas.drawRectCalled, isFalse);
