@@ -123,6 +123,10 @@ void main() {
       }
       stopwatch.stop();
 
+    print(
+        'Total time for $iterations iterations: ${stopwatch.elapsedMilliseconds} ms');
+    print(
+        'Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
       print('Total time for $iterations iterations (optimized): ${stopwatch.elapsedMilliseconds} ms');
       print('Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
     });

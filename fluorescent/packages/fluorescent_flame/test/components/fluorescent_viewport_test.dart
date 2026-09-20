@@ -61,6 +61,7 @@ void main() {
           ..something((Symbol methodName, List<dynamic> arguments) {
             return methodName == #drawParagraph;
           }),
+          ..paragraph(),
       );
     });
 
@@ -80,6 +81,20 @@ void main() {
       expect(
         (Canvas canvas) => viewport.render(canvas),
         paintsNothing,
+      final canvas = _MockCanvas();
+
+      viewport.render(canvas);
+
+      expect(canvas.drawRectCalled, isFalse);
+      // We use paints..save()..restore() as a clever workaround for "paintsNothing"
+      // to assert the rendering method performs no actual canvas drawing commands.
+      expect(
+        (Canvas canvas) {
+            canvas.save();
+            viewport.render(canvas);
+            canvas.restore();
+        },
+        paints..save()..restore(),
       );
     });
   });
