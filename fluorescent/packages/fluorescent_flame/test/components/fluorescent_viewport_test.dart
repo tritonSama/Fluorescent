@@ -10,6 +10,17 @@ class _FluorescentGame extends FlameGame {}
 
 void main() {
   group('FluorescentViewport', () {
+    test('uses default RenderConfig (60 FPS) when not provided', () {
+      final world = World3D(name: 'TestWorld');
+      final camera = Camera3D();
+      final viewport = FluorescentViewport(
+        world: world,
+        camera: camera,
+      );
+
+      expect(viewport.config.targetFps, equals(60));
+    });
+
     testWithGame<_FluorescentGame>(
       'can be added to a game',
       _FluorescentGame.new,
