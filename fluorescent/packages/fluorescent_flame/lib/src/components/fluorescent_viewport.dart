@@ -30,6 +30,9 @@ class FluorescentViewport extends PositionComponent {
   late Offset _textOffset;
 
   bool _isPainterInitialized = false;
+  // Cache Rect and Offset to avoid allocations in the render loop.
+  late Rect _cachedRect;
+  late Offset _cachedTextOffset;
 
   FluorescentViewport({
     required this.world,
@@ -55,6 +58,7 @@ class FluorescentViewport extends PositionComponent {
     _updateTextOffset();
 
     size.addListener(_updateTextOffset);
+    _updateCachedLayout();
   }
 
   @override
@@ -71,6 +75,18 @@ class FluorescentViewport extends PositionComponent {
       _textOffset = Offset(size.x / 2 - _textPainter.width / 2,
           size.y / 2 - _textPainter.height / 2);
     }
+    // Safe check since onGameResize can be called before onLoad finishes
+    if (isLoaded) {
+      _updateCachedLayout();
+    }
+  }
+
+  void _updateCachedLayout() {
+    _cachedRect = size.toRect();
+    _cachedTextOffset = Offset(
+      size.x / 2 - _textPainter.width / 2,
+      size.y / 2 - _textPainter.height / 2,
+    );
   }
 
   @override
@@ -89,11 +105,12 @@ class FluorescentViewport extends PositionComponent {
 
     if (textureId == null) {
       // Stub: Draw a placeholder rectangle indicating the 3D viewport area
-      canvas.drawRect(size.toRect(), _stubPaint);
+      canvas.drawRect(_cachedRect, _stubPaint);
 
       _textPainter.paint(
         canvas,
         _textOffset,
+        _cachedTextOffset,
       );
     }
   }
