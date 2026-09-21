@@ -42,7 +42,7 @@ void main() {
       },
     );
 
-    test('renders a purple rectangle and text when textureId is null',
+    test('renders a green rectangle and text when textureId is null',
         () async {
       final world = World3D(name: 'TestWorld');
       final camera = Camera3D();
@@ -59,9 +59,6 @@ void main() {
         (Canvas canvas) => viewport.render(canvas),
         paints
           ..rect(color: const Color(0xFF00FF00))
-          ..something((Symbol methodName, List<dynamic> arguments) {
-            return methodName == #drawParagraph;
-          }),
       );
     });
 

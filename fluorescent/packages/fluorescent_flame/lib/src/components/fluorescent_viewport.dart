@@ -49,10 +49,8 @@ class FluorescentViewport extends PositionComponent {
       textDirection: TextDirection.ltr,
     )..layout();
 
-    _updateTextOffset();
-
-    size.addListener(_updateTextOffset);
     _updateCachedLayout();
+    size.addListener(_updateCachedLayout);
   }
 
   @override
@@ -61,11 +59,6 @@ class FluorescentViewport extends PositionComponent {
     // When size changes, re-layout or re-calculate center position.
     // Ensure that _textPainter has been initialized before updating offset.
     // onGameResize is called before onLoad in Flame, so we must check.
-    _updateTextOffset();
-  }
-
-  void _updateTextOffset() {
-    // Safe check since onGameResize can be called before onLoad finishes
     if (isLoaded) {
       _updateCachedLayout();
     }
@@ -95,12 +88,15 @@ class FluorescentViewport extends PositionComponent {
 
     if (textureId == null) {
       // Stub: Draw a placeholder rectangle indicating the 3D viewport area
-      canvas.drawRect(_cachedRect, _stubPaint);
-
-      _textPainter.paint(
-        canvas,
-        _cachedTextOffset,
-      );
+      if (isLoaded) {
+        canvas.drawRect(_cachedRect, _stubPaint);
+        _textPainter.paint(
+          canvas,
+          _cachedTextOffset,
+        );
+      } else {
+        canvas.drawRect(size.toRect(), _stubPaint);
+      }
     }
   }
 }
