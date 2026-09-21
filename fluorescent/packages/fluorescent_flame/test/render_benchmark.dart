@@ -47,7 +47,8 @@ class FluorescentViewportUnoptimized extends PositionComponent {
 
       _textPainter.paint(
         canvas,
-        Offset(size.x / 2 - _textPainter.width / 2, size.y / 2 - _textPainter.height / 2),
+        Offset(size.x / 2 - _textPainter.width / 2,
+            size.y / 2 - _textPainter.height / 2),
       );
     }
   }
@@ -93,8 +94,10 @@ void main() {
       }
       stopwatch.stop();
 
-      print('Total time for $iterations iterations (unoptimized): ${stopwatch.elapsedMilliseconds} ms');
-      print('Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
+      print(
+          'Total time for $iterations iterations (unoptimized): ${stopwatch.elapsedMilliseconds} ms');
+      print(
+          'Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
     });
 
     test('Optimized (Reuses Paint instance)', () async {
@@ -123,12 +126,14 @@ void main() {
       }
       stopwatch.stop();
 
-    print(
-        'Total time for $iterations iterations: ${stopwatch.elapsedMilliseconds} ms');
-    print(
-        'Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
-      print('Total time for $iterations iterations (optimized): ${stopwatch.elapsedMilliseconds} ms');
-      print('Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
+      print(
+          'Total time for $iterations iterations: ${stopwatch.elapsedMilliseconds} ms');
+      print(
+          'Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
+      print(
+          'Total time for $iterations iterations (optimized): ${stopwatch.elapsedMilliseconds} ms');
+      print(
+          'Average time per iteration: ${stopwatch.elapsedMicroseconds / iterations} us');
     });
   });
 }

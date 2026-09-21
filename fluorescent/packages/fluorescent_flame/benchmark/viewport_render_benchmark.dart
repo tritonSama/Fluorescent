@@ -42,5 +42,6 @@ void main() async {
   print('FluorescentViewport render benchmark:');
   print('Iterations: $iterations');
   print('Elapsed time: ${stopwatch.elapsedMilliseconds}ms');
-  print('Average time per render: ${(stopwatch.elapsedMicroseconds / iterations).toStringAsFixed(3)} μs');
+  print(
+      'Average time per render: ${(stopwatch.elapsedMicroseconds / iterations).toStringAsFixed(3)} μs');
 }
