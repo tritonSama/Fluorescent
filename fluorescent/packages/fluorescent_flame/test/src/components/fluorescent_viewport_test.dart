@@ -31,7 +31,11 @@ void main() {
 
         expect(
           (Canvas canvas) => viewport.render(canvas),
-          paints..rect(color: const Color(0xFF6200EE))..paragraph(),
+          paints
+            ..rect(color: const Color(0xFF00FF00))
+            ..something((Symbol methodName, List<dynamic> arguments) {
+              return methodName == #drawParagraph;
+            }),
         );
       },
     );

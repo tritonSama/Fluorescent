@@ -20,16 +20,12 @@ class FluorescentViewport extends PositionComponent {
   final int? textureId;
 
   static final _stubPaint = Paint()
-    ..color = const Color(0xFF6200EE) // A placeholder purple color
+    ..color = const Color(0xFF00FF00) // Green colored quad stub
     ..style = PaintingStyle.fill;
 
   // Cache TextPainter to avoid GC overhead in the render loop.
   late final TextPainter _textPainter;
 
-  // Cache the text offset to avoid Offset allocation in the render loop.
-  late Offset _textOffset;
-
-  bool _isPainterInitialized = false;
   // Cache Rect and Offset to avoid allocations in the render loop.
   late Rect _cachedRect;
   late Offset _cachedTextOffset;
@@ -53,8 +49,6 @@ class FluorescentViewport extends PositionComponent {
       textDirection: TextDirection.ltr,
     )..layout();
 
-    _isPainterInitialized = true;
-
     _updateTextOffset();
 
     size.addListener(_updateTextOffset);
@@ -71,10 +65,6 @@ class FluorescentViewport extends PositionComponent {
   }
 
   void _updateTextOffset() {
-    if (_isPainterInitialized) {
-      _textOffset = Offset(size.x / 2 - _textPainter.width / 2,
-          size.y / 2 - _textPainter.height / 2);
-    }
     // Safe check since onGameResize can be called before onLoad finishes
     if (isLoaded) {
       _updateCachedLayout();
@@ -109,7 +99,6 @@ class FluorescentViewport extends PositionComponent {
 
       _textPainter.paint(
         canvas,
-        _textOffset,
         _cachedTextOffset,
       );
     }
