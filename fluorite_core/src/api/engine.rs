@@ -134,7 +134,7 @@ pub fn verify_buffer_sentinels_slice(buffer: &[u8]) -> bool {
 /// and length for direct Dart `Pointer.asTypedList()` live view.
 #[derive(Debug)]
 pub struct SharedFrameBuffer {
-    data: Vec<u8>,
+    pub data: Vec<u8>,
 }
 
 impl SharedFrameBuffer {
@@ -189,15 +189,27 @@ impl SharedFrameBuffer {
 /// C-ABI compatible memory layout for passing EngineStatus across FFI boundaries.
 #[repr(C)]
 #[derive(Debug, Clone)]
+// Helper to wrapper c_char pointer to satisfy Send/Sync
+#[derive(Debug, Clone)]
+pub struct CStringPtr(pub *const c_char);
+unsafe impl Send for CStringPtr {}
+unsafe impl Sync for CStringPtr {}
+
+#[repr(C)]
+#[derive(Debug, Clone)]
 pub struct EngineStatusC {
     pub is_initialized: bool,
     pub total_memory_allocated: usize,
     pub arena_capacity: usize,
     pub frame_index: u64,
-    pub status_message: *const c_char,
-    pub core_version: *const c_char,
-    pub allocator_name: *const c_char,
+    pub status_message: CStringPtr,
+    pub core_version: CStringPtr,
+    pub allocator_name: CStringPtr,
 }
+
+// Ensure EngineStatusC is Send/Sync so FRB can pass it across isolate boundaries.
+unsafe impl Send for EngineStatusC {}
+unsafe impl Sync for EngineStatusC {}
 
 static MSG_INITIALIZED: &[u8] = b"Fluorite Engine Core Initialized\0";
 static MSG_RUNNING: &[u8] = b"Fluorite Engine Core Running\0";
@@ -220,9 +232,9 @@ impl From<&EngineStatus> for EngineStatusC {
             total_memory_allocated: status.total_memory_allocated,
             arena_capacity: status.arena_capacity,
             frame_index: status.frame_index,
-            status_message: msg_ptr,
-            core_version: VERSION_STR.as_ptr() as *const c_char,
-            allocator_name: ALLOC_NAME.as_ptr() as *const c_char,
+            status_message: CStringPtr(msg_ptr),
+            core_version: CStringPtr(VERSION_STR.as_ptr() as *const c_char),
+            allocator_name: CStringPtr(ALLOC_NAME.as_ptr() as *const c_char),
         }
     }
 }

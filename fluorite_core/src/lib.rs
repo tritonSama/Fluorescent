@@ -12,10 +12,8 @@ pub mod allocator;
 pub mod api;
 pub mod frb_generated;
 pub mod jni;
-pub mod orchestration;
 pub mod rendering;
 pub mod servers;
-pub mod zkp;
 
 pub use allocator::{
     AllocError, ArenaAllocator, CustomAllocator, DoubleBufferedFrameAllocator, ONE_MB,
