@@ -1,8 +1,8 @@
+use fluorite_core::allocator::{ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER};
 use fluorite_core::api::{
     allocate_engine_buffer, get_engine_status, start_engine, verify_buffer_sentinels,
     DEFAULT_ENGINE_FRAME_CAPACITY,
 };
-use fluorite_core::allocator::{ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER};
 
 #[test]
 fn test_engine_api_lifecycle_and_allocation() {

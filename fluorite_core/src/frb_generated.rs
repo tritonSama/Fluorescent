@@ -31,10 +31,7 @@ pub struct EngineBufferToken {
 
 /// C-ABI initialization entry point for the Flutter Rust Bridge v2 runtime.
 #[no_mangle]
-pub extern "C" fn frb_initialize_rust(
-    _dart_opaque_drop_port: i64,
-    _dart_fn_data_drop_port: i64,
-) {
+pub extern "C" fn frb_initialize_rust(_dart_opaque_drop_port: i64, _dart_fn_data_drop_port: i64) {
     // Flutter Rust Bridge runtime initialization hook
 }
 
@@ -68,9 +65,7 @@ pub extern "C" fn wire__crate__api__engine__start_engine_sync() -> *mut EngineSt
 /// Stores size_bytes as a usize prefix immediately preceding the buffer payload,
 /// allowing safe single-pointer automatic deallocation via NativeFinalizer.
 #[no_mangle]
-pub extern "C" fn wire__crate__api__engine__allocate_engine_buffer(
-    size_bytes: usize,
-) -> *mut u8 {
+pub extern "C" fn wire__crate__api__engine__allocate_engine_buffer(size_bytes: usize) -> *mut u8 {
     std::panic::catch_unwind(|| {
         if size_bytes == 0 {
             return std::ptr::null_mut();
@@ -116,10 +111,7 @@ pub extern "C" fn wire__crate__api__engine__free_engine_buffer_auto(ptr: *mut u8
 
 /// C-ABI wire function to deallocate memory returned by `allocate_engine_buffer` (two-argument variant).
 #[no_mangle]
-pub extern "C" fn wire__crate__api__engine__free_engine_buffer(
-    ptr: *mut u8,
-    size_bytes: usize,
-) {
+pub extern "C" fn wire__crate__api__engine__free_engine_buffer(ptr: *mut u8, size_bytes: usize) {
     let _ = size_bytes;
     wire__crate__api__engine__free_engine_buffer_auto(ptr);
 }
@@ -194,9 +186,7 @@ pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_new(
 
 /// C-ABI wire function for freeing a `SharedFrameBuffer`.
 #[no_mangle]
-pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_free(
-    ptr: *mut SharedFrameBuffer,
-) {
+pub extern "C" fn wire__crate__api__engine__shared_frame_buffer_free(ptr: *mut SharedFrameBuffer) {
     let _ = std::panic::catch_unwind(|| {
         if !ptr.is_null() {
             unsafe {

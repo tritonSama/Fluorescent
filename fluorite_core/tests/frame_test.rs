@@ -1,13 +1,12 @@
 use fluorite_core::allocator::{
-    DoubleBufferedFrameAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
-    verify_buffer_sentinels,
+    verify_buffer_sentinels, DoubleBufferedFrameAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
 };
 
 #[test]
 fn test_frame_allocator_initialization() {
     let capacity = 2 * ONE_MB;
-    let frame_alloc = DoubleBufferedFrameAllocator::new(capacity)
-        .expect("Failed to create frame allocator");
+    let frame_alloc =
+        DoubleBufferedFrameAllocator::new(capacity).expect("Failed to create frame allocator");
 
     assert_eq!(frame_alloc.frame_index(), 0);
     assert_eq!(frame_alloc.current_index(), 0);
@@ -19,8 +18,8 @@ fn test_frame_allocator_initialization() {
 #[test]
 fn test_double_buffering_swap_and_isolation() {
     let capacity = 2 * ONE_MB;
-    let frame_alloc = DoubleBufferedFrameAllocator::new(capacity)
-        .expect("Failed to create frame allocator");
+    let frame_alloc =
+        DoubleBufferedFrameAllocator::new(capacity).expect("Failed to create frame allocator");
 
     // Frame 0: allocate a 1MB buffer with sentinels
     let frame_0_buffer = frame_alloc
@@ -75,10 +74,7 @@ fn test_double_buffering_swap_and_isolation() {
     assert_eq!(frame_alloc.allocated_bytes(), 0);
 
     // Arena 1 data is preserved in previous_arena()
-    assert_eq!(
-        frame_alloc.previous_arena().allocated_bytes(),
-        1024
-    );
+    assert_eq!(frame_alloc.previous_arena().allocated_bytes(), 1024);
 }
 
 #[test]

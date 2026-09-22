@@ -23,3 +23,5 @@ opt-level = 3
 lto = "thin"
 codegen-units = 1
 panic = "unwind"
+bellman = "0.14"
+rand = "0.8"
