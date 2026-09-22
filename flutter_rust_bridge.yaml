@@ -1,4 +1,4 @@
 rust_root: "fluorite_core"
-rust_input: "src/api/engine.rs"
+rust_input: "crate::api"
 dart_root: "fluorite_editor"
-dart_output: "lib/src/rust"
+dart_output: "fluorite_editor/lib/src/rust"
