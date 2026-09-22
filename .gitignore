@@ -7,3 +7,8 @@ fluorescent/examples/functional_test_app/ios/
 fluorescent/examples/functional_test_app/android/
 fluorescent/examples/functional_test_app/windows/
 fluorescent/examples/functional_test_app/web/
+
+tests/target/
+fluorite_editor/.dart_tool/
+fluorite_editor/build/
+fluorite_core/target/

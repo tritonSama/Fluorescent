@@ -1,7 +1,7 @@
-use core::alloc::Layout;
-use core::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use crate::allocator::arena::{AllocError, ArenaAllocator};
 use crate::allocator::CustomAllocator;
+use core::alloc::Layout;
+use core::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 
 /// A double-buffered ping-pong frame allocator designed to decouple game loop phases.
 ///
@@ -93,7 +93,11 @@ impl DoubleBufferedFrameAllocator {
 
     /// Allocates a contiguous slice in the current active frame arena.
     #[allow(clippy::mut_from_ref)]
-    pub fn alloc_slice<T: Copy>(&self, count: usize, default_val: T) -> Result<&mut [T], AllocError> {
+    pub fn alloc_slice<T: Copy>(
+        &self,
+        count: usize,
+        default_val: T,
+    ) -> Result<&mut [T], AllocError> {
         self.current_arena().alloc_slice(count, default_val)
     }
 

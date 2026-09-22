@@ -2,8 +2,7 @@ pub mod arena;
 pub mod frame;
 
 pub use arena::{
-    AllocError, ArenaAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
-    verify_buffer_sentinels,
+    verify_buffer_sentinels, AllocError, ArenaAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
 };
 pub use frame::DoubleBufferedFrameAllocator;
 

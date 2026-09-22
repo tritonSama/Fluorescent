@@ -16,7 +16,7 @@ pub enum QualityTier {
 /// Core renderer structure.
 #[derive(Debug)]
 pub struct Renderer {
-    tier: QualityTier,
+    pub tier: QualityTier,
 }
 
 impl Renderer {

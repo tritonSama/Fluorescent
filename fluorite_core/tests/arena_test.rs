@@ -1,10 +1,9 @@
 use core::alloc::Layout;
+use fluorite_core::allocator::{
+    verify_buffer_sentinels, AllocError, ArenaAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
+};
 use std::sync::Arc;
 use std::thread;
-use fluorite_core::allocator::{
-    AllocError, ArenaAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
-    verify_buffer_sentinels,
-};
 
 #[test]
 fn test_alignment_ladder() {
@@ -167,7 +166,9 @@ fn test_zero_sized_types() {
     let arena = ArenaAllocator::new(1024).expect("Failed to create arena");
 
     let zst_layout = Layout::new::<()>();
-    let ptr = arena.alloc_raw(zst_layout).expect("ZST allocation should succeed");
+    let ptr = arena
+        .alloc_raw(zst_layout)
+        .expect("ZST allocation should succeed");
     assert!(!ptr.is_null());
 
     // ZST should not advance allocated_bytes

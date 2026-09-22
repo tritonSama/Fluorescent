@@ -1,10 +1,10 @@
+use crate::allocator::{
+    verify_buffer_sentinels as verify_sentinels_internal, DoubleBufferedFrameAllocator,
+    SENTINEL_FOOTER, SENTINEL_HEADER,
+};
+use serde::{Deserialize, Serialize};
 use std::ffi::c_char;
 use std::sync::RwLock;
-use serde::{Deserialize, Serialize};
-use crate::allocator::{
-    verify_buffer_sentinels as verify_sentinels_internal,
-    DoubleBufferedFrameAllocator, SENTINEL_FOOTER, SENTINEL_HEADER,
-};
 
 /// Telemetry and lifecycle snapshot of the Fluorite AAA Engine core.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -226,5 +226,3 @@ impl From<&EngineStatus> for EngineStatusC {
         }
     }
 }
-
-

@@ -2,21 +2,19 @@
 //! Authored by: challenger_1_m1 (Empirical Challenger)
 
 use core::alloc::Layout;
+use fluorite_core::allocator::{
+    verify_buffer_sentinels, AllocError, ArenaAllocator, CustomAllocator,
+    DoubleBufferedFrameAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
+};
 use std::sync::Arc;
 use std::thread;
-use fluorite_core::allocator::{
-    AllocError, ArenaAllocator, CustomAllocator, DoubleBufferedFrameAllocator, ONE_MB,
-    SENTINEL_FOOTER, SENTINEL_HEADER, verify_buffer_sentinels,
-};
 
 /// Rigorously verifies the alignment arithmetic formula:
 /// `padding = (align - (addr & (align - 1))) & (align - 1)`
 /// for all target power-of-two alignments: 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096.
 #[test]
 fn test_adversarial_alignment_arithmetic_all_powers_of_two() {
-    let target_alignments: [usize; 13] = [
-        1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
-    ];
+    let target_alignments: [usize; 13] = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
     // Base addresses to simulate different heap placements (aligned, misaligned, large)
     let test_bases: [usize; 6] = [
@@ -50,14 +48,18 @@ fn test_adversarial_alignment_arithmetic_all_powers_of_two() {
                     aligned_addr % align,
                     0,
                     "Failed for align={}, addr={:#x}, remainder={}, padding={}",
-                    align, addr, remainder, padding
+                    align,
+                    addr,
+                    remainder,
+                    padding
                 );
 
                 // Invariant 2: Padding must be in range [0, align - 1]
                 assert!(
                     padding < align,
                     "Padding {} must be strictly less than align {}",
-                    padding, align
+                    padding,
+                    align
                 );
 
                 // Invariant 3: If already aligned, padding must be 0
@@ -95,7 +97,8 @@ fn test_arena_alloc_raw_high_alignments() {
             addr % align,
             0,
             "Address {:#x} is not aligned to {}",
-            addr, align
+            addr,
+            align
         );
     }
 }
@@ -117,7 +120,10 @@ fn test_boundary_conditions_exact_capacity_and_adjacent() {
         // Exact remaining 1 byte should succeed
         let layout_1 = Layout::from_size_align(1, 1).unwrap();
         let ptr2 = arena.alloc_raw(layout_1);
-        assert!(ptr2.is_ok(), "Allocation of final remaining 1 byte must succeed");
+        assert!(
+            ptr2.is_ok(),
+            "Allocation of final remaining 1 byte must succeed"
+        );
         assert_eq!(arena.allocated_bytes(), capacity);
         assert_eq!(arena.remaining_bytes(), 0);
 
@@ -172,18 +178,30 @@ fn test_zero_sized_types_offset_invariant() {
     let zst_layout = Layout::new::<()>();
     let ptr1 = arena.alloc_raw(zst_layout).unwrap();
     assert!(!ptr1.is_null());
-    assert_eq!(arena.allocated_bytes(), 0, "alloc_raw of ZST must not advance offset");
+    assert_eq!(
+        arena.allocated_bytes(),
+        0,
+        "alloc_raw of ZST must not advance offset"
+    );
 
     // 2. ZST via alloc
     let _val_ref = arena.alloc(()).unwrap();
-    assert_eq!(arena.allocated_bytes(), 0, "alloc of ZST must not advance offset");
+    assert_eq!(
+        arena.allocated_bytes(),
+        0,
+        "alloc of ZST must not advance offset"
+    );
 
     // 3. ZST slice
     #[derive(Copy, Clone)]
     struct Marker;
     let slice = arena.alloc_slice(100, Marker).unwrap();
     assert_eq!(slice.len(), 100);
-    assert_eq!(arena.allocated_bytes(), 0, "alloc_slice of ZST must not advance offset");
+    assert_eq!(
+        arena.allocated_bytes(),
+        0,
+        "alloc_slice of ZST must not advance offset"
+    );
 }
 
 /// Verifies that zero-sized types with high alignment requirements (e.g. 64)
@@ -194,7 +212,9 @@ fn test_adversarial_zst_alignment() {
 
     // Overaligned zero-sized type layout: size 0, align 64
     let zst_align_64 = Layout::from_size_align(0, 64).unwrap();
-    let ptr = arena.alloc_raw(zst_align_64).expect("ZST alloc should succeed");
+    let ptr = arena
+        .alloc_raw(zst_align_64)
+        .expect("ZST alloc should succeed");
 
     assert_eq!(
         (ptr as usize) % 64,
@@ -259,7 +279,10 @@ fn test_adversarial_concurrent_swap_and_allocate() {
         // High frequency allocation attempt during frame transition
         for _ in 0..100 {
             let slice = alloc_clone.alloc_slice(1000, 0xAB_u8);
-            assert!(slice.is_ok(), "Worker allocation must succeed during frame transitions");
+            assert!(
+                slice.is_ok(),
+                "Worker allocation must succeed during frame transitions"
+            );
         }
     });
 
@@ -293,4 +316,3 @@ fn test_adversarial_sentinel_corruption_rejection() {
     // Truncated slice fails
     assert!(!verify_buffer_sentinels(&buffer[0..ONE_MB - 1]));
 }
-

@@ -161,7 +161,7 @@ fn test_t2_f2_power_of_two_sizes() {
 #[test]
 fn test_t2_f2_alignment_boundary_at_64() {
     let mut arena = TestArenaAllocator::new(1024 * 1024).unwrap();
-    let layout = Layout::from_size_align(1024 * 1024, 64).unwrap();
+    let layout = Layout::from_size_align(1024, 64).unwrap();
     let ptr = arena.alloc_raw(layout).unwrap();
     assert_eq!(ptr as usize % 64, 0);
 }

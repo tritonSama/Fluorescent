@@ -61,8 +61,8 @@ impl ArenaAllocator {
         }
 
         // Base buffer aligned to 64 bytes (hardware cache-line boundary)
-        let layout = Layout::from_size_align(capacity, 64)
-            .map_err(|_| AllocError::InvalidLayout)?;
+        let layout =
+            Layout::from_size_align(capacity, 64).map_err(|_| AllocError::InvalidLayout)?;
 
         let ptr = unsafe { std::alloc::alloc(layout) };
         let buffer = NonNull::new(ptr).ok_or(AllocError::OutOfMemory)?;
@@ -150,7 +150,11 @@ impl ArenaAllocator {
 
     /// Allocates a contiguous mutable slice of `count` elements initialized to `default_val`.
     #[allow(clippy::mut_from_ref)]
-    pub fn alloc_slice<T: Copy>(&self, count: usize, default_val: T) -> Result<&mut [T], AllocError> {
+    pub fn alloc_slice<T: Copy>(
+        &self,
+        count: usize,
+        default_val: T,
+    ) -> Result<&mut [T], AllocError> {
         if count == 0 {
             return Ok(&mut []);
         }

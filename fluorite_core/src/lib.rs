@@ -1,21 +1,25 @@
-//! # Fluorite Core
-//!
-//! High-performance Rust native foundation and custom zero-fragmentation memory allocators
-//! for the Fluorite AAA Game Engine.
-//!
-//! ## Modules
-//! - [`allocator`]: Custom memory allocators (`ArenaAllocator`, `DoubleBufferedFrameAllocator`).
-//! - [`api`]: Engine lifecycle and memory allocation API for zero-copy FFI bridge.
-//! - [`rendering`]: Phase 2 Rendering Foundation with dynamic quality tiers.
+// # Fluorite Core
+//
+// High-performance Rust native foundation and custom zero-fragmentation memory allocators
+// for the Fluorite AAA Game Engine.
+//
+// ## Modules
+// - `allocator`: Custom memory allocators (`ArenaAllocator`, `DoubleBufferedFrameAllocator`).
+// - `api`: Engine lifecycle and memory allocation API for zero-copy FFI bridge.
+// - `rendering`: Phase 2 Rendering Foundation with dynamic quality tiers.
 
 pub mod allocator;
 pub mod api;
-pub mod rendering;
 pub mod frb_generated;
+pub mod jni;
+pub mod orchestration;
+pub mod rendering;
+pub mod servers;
+pub mod zkp;
 
 pub use allocator::{
-    AllocError, ArenaAllocator, CustomAllocator, DoubleBufferedFrameAllocator,
-    ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
+    AllocError, ArenaAllocator, CustomAllocator, DoubleBufferedFrameAllocator, ONE_MB,
+    SENTINEL_FOOTER, SENTINEL_HEADER,
 };
 
 pub use api::{
@@ -23,7 +27,5 @@ pub use api::{
     verify_buffer_sentinels_slice, EngineStatus, EngineStatusC, SharedFrameBuffer,
     DEFAULT_ENGINE_FRAME_CAPACITY,
 };
-
-
 
 pub use rendering::{QualityTier, Renderer};
