@@ -12,3 +12,4 @@ tests/target/
 fluorite_editor/.dart_tool/
 fluorite_editor/build/
 fluorite_core/target/
+/fluoderpod_render/target
