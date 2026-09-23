@@ -4,6 +4,12 @@ pub struct VirtualGeometrySystem {
     // Manages streaming cluster buffers, LOD selection compute passes.
 }
 
+impl Default for VirtualGeometrySystem {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VirtualGeometrySystem {
     pub fn new() -> Self {
         Self {}

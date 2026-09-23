@@ -643,6 +643,11 @@ Hardware detection, Dynamic quality tiers, Vulkan optimization, Desktop windowin
 - Asynchronous FFI calls for commands (spawn entity, apply force, etc.)
 - Event channels for streaming updates (network state, physics events, etc.)
 
+### Native Platform Interop & Bridges
+- Traditional C++ implementations for platform-specific capabilities (like JNI bindings and `AHardwareBuffer` setup for Vulkan on Android) are deprecated.
+- Native bridges are now implemented entirely in Rust (e.g., within `fluoderpod_render`) utilizing `jni`, `ndk-sys`, and `ash` directly.
+- The ultimate architectural goal is for `fluoderpod` to make direct native connections to hardware features (GPS, Sensors, I/O) bypassing standard JNI layers (or rewriting them internally) for maximum memory safety and throughput.
+
 ### Renderer Boundary
 - The renderer accepts a command buffer from the ECS/Systems layer
 - It does not know about gameplay, entities, or Flutter

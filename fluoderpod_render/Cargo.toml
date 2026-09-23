@@ -13,3 +13,7 @@ crate-type = ["cdylib", "rlib"]
 wgpu = "0.20"
 bytemuck = { version = "1.16", features = ["derive"] }
 log = "0.4"
+jni = "0.22.4"
+ndk = "0.9.0"
+ndk-sys = "0.6.0"
+ash = "0.38.0"

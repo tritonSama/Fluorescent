@@ -1,6 +1,6 @@
 pub mod culling;
-pub mod virtual_geometry;
 pub mod unified_pipeline;
+pub mod virtual_geometry;
 
 /// The main entry point for the fluoderpod GPU-driven render graph.
 pub struct FluoderpodRenderer {
@@ -26,3 +26,5 @@ impl FluoderpodRenderer {
         // 3. Issue Unified Indirect Draw commands
     }
 }
+#[cfg(target_os = "android")]
+pub mod android_vulkan;
