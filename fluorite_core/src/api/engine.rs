@@ -23,6 +23,8 @@ pub struct EngineStatus {
     pub core_version: String,
     /// Memory allocator subsystem name.
     pub allocator_name: String,
+    /// An optional texture ID returned after native initialization.
+    pub texture_id: Option<i64>,
 }
 
 /// Global engine frame allocator instance, protected for thread safety.
@@ -31,9 +33,17 @@ static ENGINE_ALLOCATOR: RwLock<Option<DoubleBufferedFrameAllocator>> = RwLock::
 /// Default capacity per frame buffer: 16 Megabytes (16,777,216 bytes).
 pub const DEFAULT_ENGINE_FRAME_CAPACITY: usize = 16 * 1024 * 1024;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EngineConfig {
+    pub resolution_width: u32,
+    pub resolution_height: u32,
+    pub hardware_tier: u8,
+    pub render_backend: String,
+}
+
 /// Initializes the Fluorite Engine native subsystems and custom allocators.
 #[flutter_rust_bridge::frb(sync)]
-pub fn start_engine() -> EngineStatus {
+pub fn start_engine(config: Option<EngineConfig>) -> EngineStatus {
     let mut guard = ENGINE_ALLOCATOR
         .write()
         .expect("Lock poisoned during start_engine");
@@ -53,7 +63,15 @@ pub fn start_engine() -> EngineStatus {
         status_message: "Fluorite Engine Core Initialized".to_string(),
         core_version: env!("CARGO_PKG_VERSION").to_string(),
         allocator_name: "FluoriteArenaAllocator_v1".to_string(),
+        texture_id: Some(1), // Dummy textureId
     }
+}
+
+/// Draws a wireframe primitive in the 3D space.
+#[flutter_rust_bridge::frb(sync)]
+pub fn draw_wireframe(transform: Vec<f32>, color: u32, thickness: f32) {
+    // Stub for rendering primitive shapes in the AAA Engine core.
+    println!("Drawing wireframe with thickness {} and color {:X}", thickness, color);
 }
 
 /// Allocates a contiguous buffer of `size_bytes` using the custom `ArenaAllocator`.
@@ -106,6 +124,7 @@ pub fn get_engine_status() -> EngineStatus {
             status_message: "Fluorite Engine Core Running".to_string(),
             core_version: env!("CARGO_PKG_VERSION").to_string(),
             allocator_name: "FluoriteArenaAllocator_v1".to_string(),
+            texture_id: Some(1),
         },
         None => EngineStatus {
             is_initialized: false,
@@ -115,6 +134,7 @@ pub fn get_engine_status() -> EngineStatus {
             status_message: "Fluorite Engine Core Not Initialized".to_string(),
             core_version: env!("CARGO_PKG_VERSION").to_string(),
             allocator_name: "FluoriteArenaAllocator_v1".to_string(),
+            texture_id: None,
         },
     }
 }
@@ -133,6 +153,7 @@ pub fn verify_buffer_sentinels_slice(buffer: &[u8]) -> bool {
 /// Persistent shared frame buffer handle exposing raw pointer address (`usize`)
 /// and length for direct Dart `Pointer.asTypedList()` live view.
 #[derive(Debug)]
+#[flutter_rust_bridge::frb(opaque)]
 pub struct SharedFrameBuffer {
     pub data: Vec<u8>,
 }
@@ -188,8 +209,6 @@ impl SharedFrameBuffer {
 
 /// C-ABI compatible memory layout for passing EngineStatus across FFI boundaries.
 #[repr(C)]
-#[derive(Debug, Clone)]
-// Helper to wrapper c_char pointer to satisfy Send/Sync
 #[derive(Debug, Clone)]
 pub struct CStringPtr(pub *const c_char);
 unsafe impl Send for CStringPtr {}

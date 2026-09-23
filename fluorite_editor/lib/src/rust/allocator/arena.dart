@@ -8,98 +8,72 @@ import '../frb_generated.dart';
 import '../lib.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-
-            // These functions are ignored because they have generic arguments: `alloc_slice`, `alloc`
+// These functions are ignored because they have generic arguments: `alloc_slice`, `alloc`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `drop`, `eq`, `fmt`, `fmt`
 
-
-            /// Verifies whether the given buffer has valid sentinels (0xAA header and 0x55 footer).
+/// Verifies whether the given buffer has valid sentinels (0xAA header and 0x55 footer).
 ///
 /// Requires buffer length >= 2 to accommodate two distinct boundary sentinels.
-Future<bool>  verifyBufferSentinels({required List<int> buffer }) => RustLib.instance.api.crateAllocatorArenaVerifyBufferSentinels(buffer: buffer);
+Future<bool> verifyBufferSentinels({required List<int> buffer}) =>
+    RustLib.instance.api
+        .crateAllocatorArenaVerifyBufferSentinels(buffer: buffer);
 
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ArenaAllocator>>
+abstract class ArenaAllocator implements RustOpaqueInterface, CustomAllocator {
+  /// Allocates a contiguous 1MB buffer (1,048,576 bytes) with sentinels:
+  /// - Header sentinel: `0xAA` at index 0.
+  /// - Footer sentinel: `0x55` at index 1,048,575.
+  Future<void> alloc1MbBuffer();
 
-                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ArenaAllocator>>
-                abstract class ArenaAllocator implements RustOpaqueInterface, CustomAllocator {
-                    /// Allocates a contiguous 1MB buffer (1,048,576 bytes) with sentinels:
-/// - Header sentinel: `0xAA` at index 0.
-/// - Footer sentinel: `0x55` at index 1,048,575.
- Future<void>  alloc1MbBuffer();
+  /// Allocates raw memory satisfying the given `Layout`.
+  ///
+  /// The returned pointer is guaranteed to be aligned to `layout.align()`.
+  /// Returns `AllocError::OutOfMemory` if the remaining capacity cannot satisfy the request.
+  Future<MutU8> allocRaw({required Layout layout});
 
+  /// Returns the number of bytes currently allocated (including alignment padding).
+  Future<BigInt> allocatedBytes();
 
-/// Allocates raw memory satisfying the given `Layout`.
-///
-/// The returned pointer is guaranteed to be aligned to `layout.align()`.
-/// Returns `AllocError::OutOfMemory` if the remaining capacity cannot satisfy the request.
- Future<MutU8>  allocRaw({required Layout layout });
+  /// Returns the number of allocations performed since initialization or the last reset.
+  Future<BigInt> allocationCount();
 
+  /// Returns the raw pointer to the base of the backing buffer.
+  Future<ConstU8> bufferBasePtr();
 
-/// Returns the number of bytes currently allocated (including alignment padding).
- Future<BigInt>  allocatedBytes();
-
-
-/// Returns the number of allocations performed since initialization or the last reset.
- Future<BigInt>  allocationCount();
-
-
-/// Returns the raw pointer to the base of the backing buffer.
- Future<ConstU8>  bufferBasePtr();
-
-
-/// Returns the total capacity of the arena in bytes.
- Future<BigInt>  capacityBytes();
-
+  /// Returns the total capacity of the arena in bytes.
+  Future<BigInt> capacityBytes();
 
   // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-/// Creates a new `ArenaAllocator` with the requested capacity in bytes.
-///
-/// The backing memory is allocated aligned to 64 bytes (CPU cache-line boundary).
-static Future<ArenaAllocator>  newInstance({required BigInt capacity })=>RustLib.instance.api.crateAllocatorArenaArenaAllocatorNew(capacity: capacity);
+  /// Creates a new `ArenaAllocator` with the requested capacity in bytes.
+  ///
+  /// The backing memory is allocated aligned to 64 bytes (CPU cache-line boundary).
+  static Future<ArenaAllocator> newInstance({required BigInt capacity}) =>
+      RustLib.instance.api
+          .crateAllocatorArenaArenaAllocatorNew(capacity: capacity);
 
+  /// Returns the highest byte offset reached by the allocator.
+  Future<BigInt> peakUsageBytes();
 
-/// Returns the highest byte offset reached by the allocator.
- Future<BigInt>  peakUsageBytes();
+  /// Returns the remaining available bytes before exhaustion.
+  Future<BigInt> remainingBytes();
 
+  /// Resets the allocator offset to zero in O(1).
+  ///
+  /// This instantly reclaims all memory allocated from this arena for the next frame
+  /// without deallocating or reallocating the backing OS buffer.
+  Future<void> reset();
+}
 
-/// Returns the remaining available bytes before exhaustion.
- Future<BigInt>  remainingBytes();
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<* const u8>>
+abstract class ConstU8 implements RustOpaqueInterface {}
 
-
-/// Resets the allocator offset to zero in O(1).
-///
-/// This instantly reclaims all memory allocated from this arena for the next frame
-/// without deallocating or reallocating the backing OS buffer.
- Future<void>  reset();
-
-
-
-
-                }
-
-
-
-                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<* const u8>>
-                abstract class ConstU8 implements RustOpaqueInterface {
-
-
-
-                }
-
-
-
-                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<* mut u8>>
-                abstract class MutU8 implements RustOpaqueInterface {
-
-
-
-                }
-
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<* mut u8>>
+abstract class MutU8 implements RustOpaqueInterface {}
 
 /// Errors that can occur during memory allocation.
 enum AllocError {
-                    outOfMemory,
-invalidLayout,
-unsupportedAlignment,
-                    ;
-
-                }
+  outOfMemory,
+  invalidLayout,
+  unsupportedAlignment,
+  ;
+}

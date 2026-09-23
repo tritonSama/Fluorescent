@@ -13,11 +13,12 @@ class FluoriteEngineBridge {
 
   bool isInitialized = false;
 
-  Future<void> startEngine() async {
+  Future<int?> startEngine({dynamic config}) async {
     // Stub for starting the Rust core
     await Future.delayed(const Duration(milliseconds: 100));
     isInitialized = true;
     debugPrint("Fluorite AAA Engine Core Initialized via FFI.");
+    return 1; // Return stub textureId
   }
 
   /// Evaluates spatial geofencing logic within the Rust Core

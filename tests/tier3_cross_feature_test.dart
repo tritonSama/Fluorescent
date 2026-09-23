@@ -51,7 +51,7 @@ void registerTier3Tests() {
 
     TestHarness.test('test_t3_dart_call_and_1mb_buffer_readback', () async {
       final controller = EngineControllerModel();
-      await controller.startEngine();
+      await controller.startEngine(config: null);
 
       // Dart calls FFI function
       final buffer = await controller.allocate1MB();
@@ -78,7 +78,7 @@ void registerTier3Tests() {
 
     TestHarness.test('test_t3_ffi_mutation_and_allocator_metrics', () async {
       final controller = EngineControllerModel();
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       final buf = await controller.allocate1MB();
 
       // In-place FFI mutation
