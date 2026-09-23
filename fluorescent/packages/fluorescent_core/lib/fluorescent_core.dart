@@ -3,6 +3,8 @@ library fluorescent_core;
 export 'src/scene/camera_3d.dart';
 export 'src/scene/world_3d.dart';
 export 'src/scene/fworld_loader.dart';
+export 'src/kinematics/kinematic_character_controller.dart';
+export 'src/animation/animator_component.dart';
 
 /// A Calculator.
 class Calculator {

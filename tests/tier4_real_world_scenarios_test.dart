@@ -131,7 +131,7 @@ void registerTier4Tests() {
       final controller = EngineControllerModel();
 
       // Turn 1: User clicks "Start Engine"
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       expect(controller.state, equals(EngineState.running));
       expect(controller.status!.isInitialized, isTrue);
 
@@ -151,7 +151,7 @@ void registerTier4Tests() {
       expect(controller.activeBuffer, isNull);
 
       // Turn 5: User starts engine again and reallocates
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       expect(controller.state, equals(EngineState.running));
       final buf2 = await controller.allocate1MB();
       expect(buf2.length, equals(1024 * 1024));

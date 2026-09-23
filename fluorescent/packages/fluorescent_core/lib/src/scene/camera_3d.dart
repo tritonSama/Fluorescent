@@ -44,3 +44,33 @@ class ThirdPersonCamera extends Camera3D {
     super.far,
   });
 }
+
+/// A unified CameraController ECS System / helper for handling Orbit/Pan/Zoom.
+class CameraController {
+  Camera3D camera;
+  double orbitRadius = 10.0;
+  double orbitAnglesX = 0.0; // Pitch
+  double orbitAnglesY = 0.0; // Yaw
+
+  CameraController(this.camera);
+
+  /// Updates camera position based on orbit angles around the target.
+  void updateOrbit() {
+    // Basic spherical coordinates to Cartesian
+    // camera.position = target + offset(radius, angles)
+  }
+
+  void pan(Vector2 delta) {
+    // Stub: Translate camera and target
+  }
+
+  void zoom(double delta) {
+    orbitRadius += delta;
+    updateOrbit();
+  }
+
+  /// Projects a 2D screen pointer event into a 3D ray in world space.
+  void handlePointerEvent(Vector2 screenPosition, Vector2 screenSize) {
+    // Stub: Raycast from camera to screen position
+  }
+}

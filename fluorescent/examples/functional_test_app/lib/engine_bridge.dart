@@ -18,13 +18,14 @@ class FluoriteEngineBridge {
   bool isInitialized = false;
   WebSocketChannel? _channel;
 
-  Future<void> startEngine() async {
+  Future<int?> startEngine({dynamic config}) async {
     // Stub for starting the Rust core
     await Future.delayed(const Duration(milliseconds: 100));
     isInitialized = true;
     debugPrint("Fluorite AAA Engine Core Initialized via FFI.");
 
     _connectToNexus();
+    return 1; // Return stub textureId
   }
 
   void _connectToNexus() {

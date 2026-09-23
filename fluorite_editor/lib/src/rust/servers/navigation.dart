@@ -6,32 +6,28 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`
 
-            // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`
+NavigationServerStatus startNavigationServer() =>
+    RustLib.instance.api.crateServersNavigationStartNavigationServer();
 
+class NavigationServerStatus {
+  final bool isRunning;
+  final BigInt loadedNavmeshes;
 
-            NavigationServerStatus  startNavigationServer() => RustLib.instance.api.crateServersNavigationStartNavigationServer();
+  const NavigationServerStatus({
+    required this.isRunning,
+    required this.loadedNavmeshes,
+  });
 
-            class NavigationServerStatus  {
-                final bool isRunning;
-final BigInt loadedNavmeshes;
+  @override
+  int get hashCode => isRunning.hashCode ^ loadedNavmeshes.hashCode;
 
-                const NavigationServerStatus({required this.isRunning ,required this.loadedNavmeshes ,});
-
-
-
-
-
-        @override
-        int get hashCode => isRunning.hashCode^loadedNavmeshes.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is NavigationServerStatus &&
-                runtimeType == other.runtimeType
-                && isRunning == other.isRunning&& loadedNavmeshes == other.loadedNavmeshes;
-
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NavigationServerStatus &&
+          runtimeType == other.runtimeType &&
+          isRunning == other.isRunning &&
+          loadedNavmeshes == other.loadedNavmeshes;
+}
