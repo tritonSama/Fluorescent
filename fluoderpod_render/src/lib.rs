@@ -1,5 +1,6 @@
 pub mod culling;
 pub mod unified_pipeline;
+pub mod nexus_client;
 pub mod virtual_geometry;
 
 /// The main entry point for the fluoderpod GPU-driven render graph.
