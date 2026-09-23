@@ -1,0 +1,15 @@
+[package]
+name = "fluoderpod_render"
+version = "0.1.0"
+edition = "2021"
+authors = ["Fluorite Engine Contributors"]
+description = "GPU-Driven Rendering Architecture utilizing fluoderpod batching"
+
+[lib]
+name = "fluoderpod_render"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wgpu = "0.20"
+bytemuck = { version = "1.16", features = ["derive"] }
+log = "0.4"

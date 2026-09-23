@@ -6,9 +6,7 @@
 ## Assigned Tasks (Phase 3)
 
 ### 1. GPU-Driven Rendering & Virtual Geometry
-- Implement compute shader-based culling (frustum, occlusion).
-- Develop virtual geometry system (Nanite-style micro-polygon rendering).
-- Transition to unified GPU command buffers to minimize CPU submission overhead.
+*(Note: These tasks have been delegated to the `Compute Culling Agent`, `Virtual Geometry Agent`, and `Unified Pipeline Agent` working within the `fluoderpod_render` crate. The Rendering Architect will oversee their integration into the wider engine).*
 
 ### 2. Advanced Lighting (Dynamic GI & Virtual Shadows)
 - Implement screen-space or hardware-accelerated raytraced Dynamic Global Illumination.
