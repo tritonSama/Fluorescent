@@ -29,6 +29,10 @@ Rather than the CPU issuing thousands of `draw()` commands, the CPU issues a sin
 
 This unified pipeline is abstracted to support Vulkan, Metal, and WebGPU natively through `wgpu`, ensuring cross-platform capability without writing bespoke backend logic for the culling mechanics.
 
+### 5. Pure Rust Native Bridges
+Historically, specific platform integrations (like Android's `AHardwareBuffer` and JNI surface initialization for Vulkan) relied on C++ implementations within `fluorescent_vulkan`. This has been superseded by a pure Rust implementation embedded directly within `fluoderpod_render` using `jni`, `ndk-sys`, and `ash`.
+Moving forward, the architectural goal is for `fluoderpod` to make direct native connections to hardware features—such as GPS, Sensors, and I/O—bypassing traditional JNI bridges altogether (or heavily rewriting them) to achieve maximum throughput and memory safety entirely in Rust.
+
 ## Agent Responsibilities
 Development of this architecture is parallelized across three specific agents:
 - **Compute Culling Agent**: Frustum and HZB Occlusion compute shaders.
