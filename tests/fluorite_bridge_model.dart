@@ -27,6 +27,8 @@ class EngineStatus {
   final int arenaAllocatedBytes;
   final int frameIndex;
 
+  final int? textureId;
+
   const EngineStatus({
     required this.isInitialized,
     required this.coreVersion,
@@ -34,12 +36,13 @@ class EngineStatus {
     required this.arenaCapacityBytes,
     required this.arenaAllocatedBytes,
     required this.frameIndex,
+    this.textureId,
   });
 
   @override
   String toString() =>
       'EngineStatus(init: $isInitialized, ver: $coreVersion, alloc: $allocatorName, '
-      'cap: $arenaCapacityBytes, used: $arenaAllocatedBytes, frame: $frameIndex)';
+      'cap: $arenaCapacityBytes, used: $arenaAllocatedBytes, frame: $frameIndex, tex: $textureId)';
 }
 
 /// Bump-pointer arena allocator implementing power-of-two alignment arithmetic.
@@ -208,7 +211,7 @@ class EngineControllerModel {
   EngineControllerModel({int arenaCapacity = 1024 * 1024 * 64})
       : allocator = DoubleBufferedFrameAllocatorModel(arenaCapacity);
 
-  Future<void> startEngine() async {
+  Future<int?> startEngine({dynamic config}) async {
     state = EngineState.initializing;
     // Simulate brief initialization
     await Future.delayed(Duration(microseconds: 100));
@@ -220,7 +223,13 @@ class EngineControllerModel {
       arenaCapacityBytes: allocator.currentArena.capacityBytes,
       arenaAllocatedBytes: allocator.currentArena.allocatedBytes,
       frameIndex: allocator.frameIndex,
+      textureId: 1,
     );
+    return 1;
+  }
+
+  void drawWireframe({required List<double> transform, required int color, required double thickness}) {
+    // Stub
   }
 
   Future<Uint8List> allocate1MB() async {
@@ -242,6 +251,7 @@ class EngineControllerModel {
       arenaCapacityBytes: allocator.currentArena.capacityBytes,
       arenaAllocatedBytes: oneMb,
       frameIndex: allocator.frameIndex,
+      textureId: 1,
     );
     return buffer;
   }

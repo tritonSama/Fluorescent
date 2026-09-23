@@ -9,7 +9,7 @@ import 'main_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FluoriteEngineBridge().startEngine();
+  await FluoriteEngineBridge().startEngine(config: null);
   runApp(const FunctionalTestApp());
 }
 

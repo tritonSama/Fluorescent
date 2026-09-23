@@ -8,32 +8,20 @@ import 'frb_generated.dart';
 import 'lib.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+abstract class CustomAllocator {
+  /// Allocates raw memory matching the specified `Layout`.
+  ///
+  /// # Safety
+  /// Caller must ensure that references derived from this pointer do not outlive
+  /// the allocator or survive across `reset()` invocations.
+  Future<MutU8> allocRaw({required Layout layout});
 
+  /// Total bytes currently allocated.
+  Future<BigInt> allocatedBytes();
 
+  /// Usable capacity in bytes.
+  Future<BigInt> capacityBytes();
 
-
-
-
-                abstract class CustomAllocator {
-                    /// Allocates raw memory matching the specified `Layout`.
-///
-/// # Safety
-/// Caller must ensure that references derived from this pointer do not outlive
-/// the allocator or survive across `reset()` invocations.
- Future<MutU8>  allocRaw({required Layout layout });
-
-
-/// Total bytes currently allocated.
- Future<BigInt>  allocatedBytes();
-
-
-/// Usable capacity in bytes.
- Future<BigInt>  capacityBytes();
-
-
-/// O(1) bulk reset of allocated memory.
- Future<void>  reset();
-
-
-                }
-
+  /// O(1) bulk reset of allocated memory.
+  Future<void> reset();
+}
