@@ -25,3 +25,32 @@ impl NexusClient {
         Ok(ws_stream)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json;
+
+    #[test]
+    fn test_rail_message_serialization() {
+        let msg = RailMessage::Telemetry {
+            payload: "hello".to_string(),
+        };
+
+        let json = serde_json::to_string(&msg).unwrap();
+        assert_eq!(json, r#"{"type":"Telemetry","payload":"hello"}"#);
+
+        let parsed: RailMessage = serde_json::from_str(&json).unwrap();
+        match parsed {
+            RailMessage::Telemetry { payload } => assert_eq!(payload, "hello"),
+            _ => panic!("Deserialized wrong type"),
+        }
+    }
+
+    #[test]
+    fn test_rail_message_ping() {
+        let msg = RailMessage::Ping;
+        let json = serde_json::to_string(&msg).unwrap();
+        assert_eq!(json, r#"{"type":"Ping"}"#);
+    }
+}
