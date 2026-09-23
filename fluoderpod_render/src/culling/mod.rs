@@ -4,6 +4,12 @@ pub struct ComputeCuller {
     // Defines bindings to the compute shader, HZB textures, etc.
 }
 
+impl Default for ComputeCuller {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ComputeCuller {
     pub fn new() -> Self {
         Self {}

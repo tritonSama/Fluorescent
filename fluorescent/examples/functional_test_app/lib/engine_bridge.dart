@@ -69,6 +69,7 @@ class FluoriteEngineBridge {
 
   void disconnect() {
     _channel?.sink.close(status.goingAway);
+    return 1; // Return stub textureId
   }
 
   /// Evaluates spatial geofencing logic within the Rust Core

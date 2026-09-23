@@ -4,6 +4,12 @@ pub struct PipelineManager {
     // Abstracted WGPU Device and Queue
 }
 
+impl Default for PipelineManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PipelineManager {
     pub fn new() -> Self {
         Self {}
