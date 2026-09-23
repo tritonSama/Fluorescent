@@ -84,7 +84,29 @@ The goal is **not** to make a Frankenstein of those engines. It is to **extract 
 
 ---
 
-## 3. Two Engines in One: Creation Runtime & Game Runtime
+## 3. The Decoupled Native Core: `fluoderpod` & `fluorite`
+
+A critical aspect of the Fluorescent ecosystem is its reliance on decoupled, external dependencies for low-level OS interaction and zero-copy data bridges. Both the rendering bridge (`fluoderpod`) and the foundational runtime abstraction (`fluorite`) are maintained in completely separate Git repositories.
+
+They are brought into the Fluorescent workspace strictly as **Git submodules**. This provides several advantages:
+1. **Independent Versioning:** The low-level bridge and OS-level hooks can be updated and versioned separately from the game/app logic.
+2. **Direct Core Integration:** `fluoderpod` bypasses Dart FFI intermediaries, plugging directly into the Fluoridian app's Rust core. The Fluoridian core then acts as the driver for the Fluorescent rendering workspace.
+3. **Native OS Access:** By decoupling `fluoderpod`, the Rust core gains direct access to OS-level APIs. A prime example is the **Native GPS Architecture**: The Rust core calls GPS hardware directly via JNI (Android) and Swift/Objective-C (iOS), completely bypassing Flutter-level location plugins for highly accurate, zero-latency spatial data.
+
+### 3.1 Step-by-Step Migration Plan
+
+To achieve this decoupled architecture, the following steps will be executed:
+1. **Extract Repositories:** Move the current `fluoderpod` and `fluorite` directories out of the monorepo and into their own standalone Git repositories.
+2. **Link Submodules:** In the root of the Fluorescent workspace, run `git submodule add <url> <path>` for both `fluoderpod` and `fluorite`. Update the `.gitmodules` file and ensure `git submodule update --init --recursive` is part of the build process.
+3. **Rust Core Integration:** Refactor the `Cargo.toml` of the Fluoridian app's Rust core to point to the local submodule paths for `fluoderpod` and `fluorite`. Remove any Dart FFI bindings related to these modules from the Flutter layer.
+4. **Implement Native GPS Bindings:**
+    - **Android:** Write JNI bindings in the Fluoridian Rust core to directly access `android.location.LocationManager`.
+    - **iOS:** Write Swift/Objective-C bindings accessed via FFI from the Rust core to directly use `CLLocationManager`.
+    - Update the ECS spatial systems to ingest location data from these new native bindings instead of the Flutter `geolocator` plugin.
+
+---
+
+## 4. Two Engines in One: Creation Runtime & Game Runtime
 
 The engine has two distinct runtime modes that share the same project.
 
@@ -114,7 +136,7 @@ The engine has two distinct runtime modes that share the same project.
 
 ---
 
-## 4. Rust Is the Heart
+## 5. Rust Is the Heart
 
 Instead of Dart/Flutter being the engine's core, **Rust is the authoritative runtime**. All gameplay state, physics, networking, and rendering commands originate from and are owned by Rust.
 
@@ -156,7 +178,7 @@ This gives a very clean separation of concerns. Flutter never owns gameplay stat
 
 ---
 
-## 5. The Renderer as Its Own Engine
+## 6. The Renderer as Its Own Engine
 
 Rather than scattering rendering logic throughout the codebase, the renderer is conceptualized as a self-contained sub-engine with clear boundaries.
 
@@ -202,7 +224,7 @@ YOUR RENDERER
 
 ---
 
-## 6. The 10 Major Engine Subsystems
+## 7. The 10 Major Engine Subsystems
 
 ### Game Engine Layer
 
@@ -244,7 +266,7 @@ YOUR RENDERER
 
 ---
 
-## 7. Flutter as First-Class UI Runtime
+## 8. Flutter as First-Class UI Runtime
 
 This is where the engine diverges from Unreal/Unity. Flutter is a **first-class UI runtime**, not a wrapper.
 
@@ -271,7 +293,7 @@ The 3D world is rendered by Rust/native GPU systems. Flutter handles the complex
 
 ---
 
-## 8. Everything Is an Entity (ECS Model)
+## 9. Everything Is an Entity (ECS Model)
 
 Borrow heavily from ECS thinking. Every object in the world is an entity composed of data-only components.
 
@@ -308,7 +330,7 @@ This gives a common language across the entire engine. Systems operate on compon
 
 ---
 
-## 9. Hardware Capability Tiers
+## 10. Hardware Capability Tiers
 
 The Android/Desktop strategy is fundamental, not an export option. The engine defines **capability tiers** and the same game project runs across all of them.
 
@@ -334,7 +356,7 @@ The engine automatically detects what the hardware can support and scales the re
 
 ---
 
-## 10. Data-Driven Engine
+## 11. Data-Driven Engine
 
 Instead of baking everything into compiled code, the engine interprets data resources. This becomes extremely useful for modding and eventually an asset ecosystem.
 
@@ -361,7 +383,7 @@ The engine interprets those resources at runtime. Game logic, materials, VFX, an
 
 ---
 
-## 11. The Ultimate Layered Architecture
+## 12. The Ultimate Layered Architecture
 
 ```text
                   ┌─────────────────────┐
@@ -409,7 +431,7 @@ The engine interprets those resources at runtime. Game logic, materials, VFX, an
 
 ---
 
-## 12. AAA Subsystem Detail
+## 13. AAA Subsystem Detail
 
 ### 12.1 World Streaming
 
@@ -565,7 +587,7 @@ Plus: frame debugger, GPU capture, entity inspector, network debugger, physics d
 
 ---
 
-## 13. The Flutter Editor
+## 14. The Flutter Editor
 
 The editor is Flutter-based, making it cross-platform by default.
 
@@ -586,7 +608,7 @@ The editor is Flutter-based, making it cross-platform by default.
 
 ---
 
-## 14. Phased Roadmap
+## 15. Phased Roadmap
 
 ### Phase 1 — Foundation
 Fluorite → Rust core → ECS → Flutter integration → Vulkan
@@ -608,7 +630,7 @@ Hardware detection, Dynamic quality tiers, Vulkan optimization, Desktop windowin
 
 ---
 
-## 15. Module Boundaries & FFI Contract
+## 16. Module Boundaries & FFI Contract
 
 ### Rust → Flutter Communication
 - **Zero-Copy FFI** via `flutter_rust_bridge` v2
@@ -628,7 +650,7 @@ Hardware detection, Dynamic quality tiers, Vulkan optimization, Desktop windowin
 
 ---
 
-## 16. Strategic Differentiators
+## 17. Strategic Differentiators
 
 1. **Rust + Flutter**: Memory-safe, high-performance core with the best cross-platform UI framework for tooling and in-game interfaces.
 2. **Scalable Renderer**: Same game project, automatically adapted from mobile to desktop to high-end via hardware capability tiers.
