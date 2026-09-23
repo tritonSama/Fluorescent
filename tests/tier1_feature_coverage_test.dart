@@ -155,7 +155,7 @@ void registerTier1Tests() {
       final controller = EngineControllerModel();
       expect(controller.state, equals(EngineState.uninitialized));
 
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       expect(controller.state, equals(EngineState.running));
       expect(controller.status, isNotNull);
       expect(controller.status!.isInitialized, isTrue);
@@ -172,7 +172,7 @@ void registerTier1Tests() {
 
     TestHarness.test('test_t1_f3_get_engine_status', () async {
       final controller = EngineControllerModel();
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       await controller.allocate1MB();
 
       final status = controller.status!;
@@ -218,7 +218,7 @@ void registerTier1Tests() {
 
     TestHarness.test('test_t1_f4_editor_controller_start_engine', () async {
       final controller = EngineControllerModel();
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       expect(controller.state, equals(EngineState.running));
       expect(controller.status!.isInitialized, isTrue);
     });
@@ -236,7 +236,7 @@ void registerTier1Tests() {
 
     TestHarness.test('test_t1_f4_editor_controller_reset', () async {
       final controller = EngineControllerModel();
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       await controller.allocate1MB();
 
       controller.reset();

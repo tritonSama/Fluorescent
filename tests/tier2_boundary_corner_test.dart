@@ -153,11 +153,11 @@ void registerTier2Tests() {
 
     TestHarness.test('test_t2_f3_repeated_start_engine', () async {
       final controller = EngineControllerModel();
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       expect(controller.state, equals(EngineState.running));
 
       // Idempotent secondary call
-      await controller.startEngine();
+      await controller.startEngine(config: null);
       expect(controller.state, equals(EngineState.running));
       expect(controller.status!.isInitialized, isTrue);
     });

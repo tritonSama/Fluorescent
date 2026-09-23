@@ -6,54 +6,50 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`, `fmt`
 
-            // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`, `fmt`
-
-
-
-
-            /// Dynamic quality tiers for the scalable AAA renderer.
+/// Dynamic quality tiers for the scalable AAA renderer.
 enum QualityTier {
-                    /// Tier 1: Simplified renderer targeted at Mobile Android GPUs.
-tier1,
-/// Tier 2: Enhanced renderer for high-end mobile and lower-end desktop.
-tier2,
-/// Tier 3: High-quality renderer for mid-range desktop.
-tier3,
-/// Tier 4: AAA renderer with advanced features (Dynamic GI, Virtual Geometry) for high-end desktop.
-tier4,
-                    ;
+  /// Tier 1: Simplified renderer targeted at Mobile Android GPUs.
+  tier1,
 
-                }
+  /// Tier 2: Enhanced renderer for high-end mobile and lower-end desktop.
+  tier2,
+
+  /// Tier 3: High-quality renderer for mid-range desktop.
+  tier3,
+
+  /// Tier 4: AAA renderer with advanced features (Dynamic GI, Virtual Geometry) for high-end desktop.
+  tier4,
+  ;
+}
 
 /// Core renderer structure.
-class Renderer  {
-                final QualityTier tier;
+class Renderer {
+  final QualityTier tier;
 
-                const Renderer({required this.tier ,});
+  const Renderer({
+    required this.tier,
+  });
 
-                  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-/// Creates a new Renderer initialized with the specified quality tier.
-static Future<Renderer>  newInstance({required QualityTier tier })=>RustLib.instance.api.crateRenderingRendererRendererNew(tier: tier);
+  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
+  /// Creates a new Renderer initialized with the specified quality tier.
+  static Future<Renderer> newInstance({required QualityTier tier}) =>
+      RustLib.instance.api.crateRenderingRendererRendererNew(tier: tier);
 
+  /// Returns the current quality tier of the renderer.
+  Future<QualityTier> qualityTier() =>
+      RustLib.instance.api.crateRenderingRendererRendererQualityTier(
+        that: this,
+      );
 
-/// Returns the current quality tier of the renderer.
- Future<QualityTier>  qualityTier()=>RustLib.instance.api.crateRenderingRendererRendererQualityTier(that: this, );
+  @override
+  int get hashCode => tier.hashCode;
 
-
-
-
-
-        @override
-        int get hashCode => tier.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is Renderer &&
-                runtimeType == other.runtimeType
-                && tier == other.tier;
-
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Renderer &&
+          runtimeType == other.runtimeType &&
+          tier == other.tier;
+}
