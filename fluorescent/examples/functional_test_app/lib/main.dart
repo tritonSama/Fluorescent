@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // ignore: unused_import
 import 'package:fluorescent_core/fluorescent_core.dart'; // Just validating import
 import 'engine_bridge.dart';
+import 'main_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ class FunctionalTestApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MapScreen(),
+      home: const MainNavigationScreen(),
     );
   }
 }
@@ -97,6 +98,7 @@ class _MapScreenState extends State<MapScreen> {
   void _startMockLocationUpdates() {
     // Simulate incoming location updates at 2 Hz
     _mockLocationTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (!mounted) return;
       setState(() {
         // Move drivers randomly
         _driver1 = LatLng(
