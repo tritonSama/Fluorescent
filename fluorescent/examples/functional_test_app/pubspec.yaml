@@ -37,6 +37,8 @@ dependencies:
   google_maps_flutter: ^2.18.1
   fluorescent_core:
     path: ../../packages/fluorescent_core
+  http: ^1.6.0
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:
