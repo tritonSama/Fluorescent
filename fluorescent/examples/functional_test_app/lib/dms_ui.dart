@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'backend/backend_service.dart';
 
 class DMsScreen extends StatefulWidget {
   const DMsScreen({super.key});
@@ -8,37 +9,47 @@ class DMsScreen extends StatefulWidget {
 }
 
 class _DMsScreenState extends State<DMsScreen> {
-  // Mock data for chats
-  final List<Map<String, String>> _chats = [
-    {
-      'name': 'SF Rally Club (Group)',
-      'avatar': 'SF',
-      'lastMessage': 'Are we still meeting at 8?',
-      'time': '10:45 AM',
-      'unread': '3',
-    },
-    {
-      'name': 'Driver_X',
-      'avatar': 'D',
-      'lastMessage': 'Thanks for the heads up on the speed trap.',
-      'time': '9:30 AM',
-      'unread': '0',
-    },
-    {
-      'name': 'NightRider',
-      'avatar': 'N',
-      'lastMessage': 'See you at the coast!',
-      'time': 'Yesterday',
-      'unread': '0',
-    },
-    {
-      'name': 'Mechanics Group',
-      'avatar': 'M',
-      'lastMessage': 'GearHead: Looking for a mechanic...',
-      'time': 'Yesterday',
-      'unread': '1',
-    },
-  ];
+  final BackendService _backend = BackendService();
+
+  @override
+  void initState() {
+    super.initState();
+    if (_backend.messages.isEmpty) {
+      _backend.messages = [
+        {
+          'name': 'SF Rally Club (Group)',
+          'avatar': 'SF',
+          'lastMessage': 'Are we still meeting at 8?',
+          'time': '10:45 AM',
+          'unread': '3',
+        },
+        {
+          'name': 'Driver_X',
+          'avatar': 'D',
+          'lastMessage': 'Thanks for the heads up on the speed trap.',
+          'time': '9:30 AM',
+          'unread': '0',
+        },
+        {
+          'name': 'NightRider',
+          'avatar': 'N',
+          'lastMessage': 'See you at the coast!',
+          'time': 'Yesterday',
+          'unread': '0',
+        },
+        {
+          'name': 'Mechanics Group',
+          'avatar': 'M',
+          'lastMessage': 'GearHead: Looking for a mechanic...',
+          'time': 'Yesterday',
+          'unread': '1',
+        },
+      ];
+    }
+    _backend.onUpdate = () {
+      if (mounted) setState(() {});
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +58,10 @@ class _DMsScreenState extends State<DMsScreen> {
         title: const Text('Messages'),
       ),
       body: ListView.separated(
-        itemCount: _chats.length,
+        itemCount: _backend.messages.length,
         separatorBuilder: (context, index) => const Divider(height: 1),
         itemBuilder: (context, index) {
-          final chat = _chats[index];
+          final chat = _backend.messages[index];
           final hasUnread = int.parse(chat['unread']!) > 0;
           return ListTile(
             leading: CircleAvatar(

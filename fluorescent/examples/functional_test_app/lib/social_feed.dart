@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'backend/backend_service.dart';
 
 class SocialFeedScreen extends StatefulWidget {
   const SocialFeedScreen({super.key});
@@ -8,37 +9,47 @@ class SocialFeedScreen extends StatefulWidget {
 }
 
 class _SocialFeedScreenState extends State<SocialFeedScreen> {
-  // Mock data for social posts
-  final List<Map<String, String>> _posts = [
-    {
-      'user': 'Driver_X',
-      'avatar': 'D',
-      'time': '2 mins ago',
-      'content': 'Just passed the speed trap on I-280, be careful out there!',
-      'likes': '12',
-    },
-    {
-      'user': 'SpeedRacer',
-      'avatar': 'S',
-      'time': '15 mins ago',
-      'content': 'Rally starting at the Golden Gate Bridge in 1 hour. Who is in?',
-      'likes': '45',
-    },
-    {
-      'user': 'NightRider',
-      'avatar': 'N',
-      'time': '1 hr ago',
-      'content': 'Beautiful sunset drive along the coast today.',
-      'likes': '89',
-    },
-    {
-      'user': 'GearHead',
-      'avatar': 'G',
-      'time': '3 hrs ago',
-      'content': 'Looking for a mechanic recommendation in SF for a tune-up.',
-      'likes': '4',
-    },
-  ];
+  final BackendService _backend = BackendService();
+
+  @override
+  void initState() {
+    super.initState();
+    if (_backend.posts.isEmpty) {
+      _backend.posts = [
+        {
+          'user': 'Driver_X',
+          'avatar': 'D',
+          'time': '2 mins ago',
+          'content': 'Just passed the speed trap on I-280, be careful out there!',
+          'likes': '12',
+        },
+        {
+          'user': 'SpeedRacer',
+          'avatar': 'S',
+          'time': '15 mins ago',
+          'content': 'Rally starting at the Golden Gate Bridge in 1 hour. Who is in?',
+          'likes': '45',
+        },
+        {
+          'user': 'NightRider',
+          'avatar': 'N',
+          'time': '1 hr ago',
+          'content': 'Beautiful sunset drive along the coast today.',
+          'likes': '89',
+        },
+        {
+          'user': 'GearHead',
+          'avatar': 'G',
+          'time': '3 hrs ago',
+          'content': 'Looking for a mechanic recommendation in SF for a tune-up.',
+          'likes': '4',
+        },
+      ];
+    }
+    _backend.onUpdate = () {
+      if (mounted) setState(() {});
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +58,9 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
         title: const Text('Social Feed'),
       ),
       body: ListView.builder(
-        itemCount: _posts.length,
+        itemCount: _backend.posts.length,
         itemBuilder: (context, index) {
-          final post = _posts[index];
+          final post = _backend.posts[index];
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: Padding(
@@ -112,7 +123,8 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Action for creating a new post
+          _backend.sendPost('Driver_X', 'Testing live updates!');
+          setState(() {});
         },
         child: const Icon(Icons.add),
       ),
