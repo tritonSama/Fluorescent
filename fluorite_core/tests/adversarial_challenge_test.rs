@@ -3,7 +3,7 @@
 
 use core::alloc::Layout;
 use fluorite_core::allocator::{
-    verify_buffer_sentinels, AllocError, ArenaAllocator, CustomAllocator,
+    verify_buffer_sentinels, AllocError, ArenaAllocator,
     DoubleBufferedFrameAllocator, ONE_MB, SENTINEL_FOOTER, SENTINEL_HEADER,
 };
 use std::sync::Arc;

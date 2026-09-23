@@ -7,7 +7,7 @@ use fluorite_core::api::{
 #[test]
 fn test_engine_api_lifecycle_and_allocation() {
     // Before start_engine, verify status handles uninitialized or initialized state
-    let initial_status = get_engine_status();
+    let _initial_status = get_engine_status();
     // After start_engine, engine must be initialized
     let status = start_engine();
     assert!(status.is_initialized);

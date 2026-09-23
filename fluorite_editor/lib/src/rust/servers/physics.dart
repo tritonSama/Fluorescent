@@ -6,32 +6,28 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`
 
-            // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `eq`, `fmt`
+PhysicsServerStatus startPhysicsServer() =>
+    RustLib.instance.api.crateServersPhysicsStartPhysicsServer();
 
+class PhysicsServerStatus {
+  final bool isRunning;
+  final BigInt activeBodies;
 
-            PhysicsServerStatus  startPhysicsServer() => RustLib.instance.api.crateServersPhysicsStartPhysicsServer();
+  const PhysicsServerStatus({
+    required this.isRunning,
+    required this.activeBodies,
+  });
 
-            class PhysicsServerStatus  {
-                final bool isRunning;
-final BigInt activeBodies;
+  @override
+  int get hashCode => isRunning.hashCode ^ activeBodies.hashCode;
 
-                const PhysicsServerStatus({required this.isRunning ,required this.activeBodies ,});
-
-
-
-
-
-        @override
-        int get hashCode => isRunning.hashCode^activeBodies.hashCode;
-
-
-
-        @override
-        bool operator ==(Object other) =>
-            identical(this, other) ||
-            other is PhysicsServerStatus &&
-                runtimeType == other.runtimeType
-                && isRunning == other.isRunning&& activeBodies == other.activeBodies;
-
-            }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PhysicsServerStatus &&
+          runtimeType == other.runtimeType &&
+          isRunning == other.isRunning &&
+          activeBodies == other.activeBodies;
+}

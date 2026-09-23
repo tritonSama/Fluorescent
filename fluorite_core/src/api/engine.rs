@@ -3,7 +3,6 @@ use crate::allocator::{
     SENTINEL_FOOTER, SENTINEL_HEADER,
 };
 use serde::{Deserialize, Serialize};
-use std::ffi::c_char;
 use std::sync::RwLock;
 
 /// Telemetry and lifecycle snapshot of the Fluorite AAA Engine core.
@@ -133,6 +132,7 @@ pub fn verify_buffer_sentinels_slice(buffer: &[u8]) -> bool {
 /// Persistent shared frame buffer handle exposing raw pointer address (`usize`)
 /// and length for direct Dart `Pointer.asTypedList()` live view.
 #[derive(Debug)]
+#[flutter_rust_bridge::frb(opaque)]
 pub struct SharedFrameBuffer {
     pub data: Vec<u8>,
 }
@@ -186,55 +186,30 @@ impl SharedFrameBuffer {
     }
 }
 
-/// C-ABI compatible memory layout for passing EngineStatus across FFI boundaries.
-#[repr(C)]
-#[derive(Debug, Clone)]
-// Helper to wrapper c_char pointer to satisfy Send/Sync
-#[derive(Debug, Clone)]
-pub struct CStringPtr(pub *const c_char);
-unsafe impl Send for CStringPtr {}
-unsafe impl Sync for CStringPtr {}
 
-#[repr(C)]
-#[derive(Debug, Clone)]
-pub struct EngineStatusC {
-    pub is_initialized: bool,
-    pub total_memory_allocated: usize,
-    pub arena_capacity: usize,
-    pub frame_index: u64,
-    pub status_message: CStringPtr,
-    pub core_version: CStringPtr,
-    pub allocator_name: CStringPtr,
+
+use crate::rendering::graph::RenderGraphDefinition;
+
+/// Global loaded render graph instance.
+static RENDER_GRAPH: RwLock<Option<RenderGraphDefinition>> = RwLock::new(None);
+
+/// Loads a data-driven Render Graph definition from a JSON string.
+/// Returns true if successful, false if parsing failed.
+#[flutter_rust_bridge::frb(sync)]
+pub fn load_render_graph(json_string: String) -> bool {
+    match serde_json::from_str::<RenderGraphDefinition>(&json_string) {
+        Ok(graph) => {
+            let mut guard = RENDER_GRAPH.write().unwrap();
+            *guard = Some(graph);
+            true
+        }
+        Err(_) => false,
+    }
 }
 
-// Ensure EngineStatusC is Send/Sync so FRB can pass it across isolate boundaries.
-unsafe impl Send for EngineStatusC {}
-unsafe impl Sync for EngineStatusC {}
-
-static MSG_INITIALIZED: &[u8] = b"Fluorite Engine Core Initialized\0";
-static MSG_RUNNING: &[u8] = b"Fluorite Engine Core Running\0";
-static MSG_NOT_INITIALIZED: &[u8] = b"Fluorite Engine Core Not Initialized\0";
-static VERSION_STR: &[u8] = b"0.1.0\0";
-static ALLOC_NAME: &[u8] = b"FluoriteArenaAllocator_v1\0";
-
-impl From<&EngineStatus> for EngineStatusC {
-    fn from(status: &EngineStatus) -> Self {
-        let msg_ptr = if !status.is_initialized {
-            MSG_NOT_INITIALIZED.as_ptr() as *const c_char
-        } else if status.status_message.contains("Initialized") {
-            MSG_INITIALIZED.as_ptr() as *const c_char
-        } else {
-            MSG_RUNNING.as_ptr() as *const c_char
-        };
-
-        Self {
-            is_initialized: status.is_initialized,
-            total_memory_allocated: status.total_memory_allocated,
-            arena_capacity: status.arena_capacity,
-            frame_index: status.frame_index,
-            status_message: CStringPtr(msg_ptr),
-            core_version: CStringPtr(VERSION_STR.as_ptr() as *const c_char),
-            allocator_name: CStringPtr(ALLOC_NAME.as_ptr() as *const c_char),
-        }
-    }
+/// Retrieves the name of the currently active Render Graph.
+#[flutter_rust_bridge::frb(sync)]
+pub fn get_active_render_graph_name() -> Option<String> {
+    let guard = RENDER_GRAPH.read().unwrap();
+    guard.as_ref().map(|g| g.name.clone())
 }
