@@ -236,7 +236,7 @@ void main() {
   group('4. Native Memory Deallocation & Stress-Testing Loops', () {
     test('Stress Loop: 100 consecutive 1MB allocations (100MB cumulative)', () {
       RustLib.resetForTesting();
-      startEngine();
+      startEngine(config: null);
 
       for (int i = 0; i < 100; i++) {
         final buf = allocateEngineBuffer(sizeBytes: 1024 * 1024);

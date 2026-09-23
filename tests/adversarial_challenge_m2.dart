@@ -133,12 +133,12 @@ void main() {
     RustLib.resetForTesting();
     final statusInitial = getEngineStatus();
     if (statusInitial.isInitialized) {
-      throw 'Engine should be uninitialized before startEngine()';
+      throw 'Engine should be uninitialized before startEngine(config: null)';
     }
 
-    final statusStarted = startEngine();
+    final statusStarted = startEngine(config: null);
     if (!statusStarted.isInitialized) {
-      throw 'Engine should be initialized after startEngine()';
+      throw 'Engine should be initialized after startEngine(config: null)';
     }
     if (statusStarted.arenaCapacity != BigInt.from(16 * 1024 * 1024)) {
       throw 'Unexpected arena capacity: ${statusStarted.arenaCapacity}';
@@ -215,26 +215,26 @@ void main() {
 
   test('EMPIRICAL CHALLENGE: Multiple start_engine calls and frame index divergence', () {
     RustLib.resetForTesting();
-    final s1 = startEngine();
+    final s1 = startEngine(config: null);
     final f1 = s1.frameIndex;
-    final s2 = startEngine();
+    final s2 = startEngine(config: null);
     final f2 = s2.frameIndex;
 
-    print('    startEngine() #1 frameIndex: $f1, #2 frameIndex: $f2');
+    print('    startEngine(config: null) #1 frameIndex: $f1, #2 frameIndex: $f2');
     if (f2 > f1) {
       reportFinding(
         'VULN-M2-04',
-        'State divergence in repeated startEngine() calls',
+        'State divergence in repeated startEngine(config: null) calls',
         'In Rust core (api/engine.rs), start_engine is idempotent and does not advance frame_index. '
         'In Dart bridge (frb_generated.dart:112), crateApiEngineStartEngine executes _frameIndex++ on every call. '
-        'Repeated calls to startEngine() cause frameIndex to increment (from $f1 to $f2), violating idempotency.'
+        'Repeated calls to startEngine(config: null) cause frameIndex to increment (from $f1 to $f2), violating idempotency.'
       );
     }
   });
 
   test('EMPIRICAL CHALLENGE: Oversized allocation exceeding arena capacity', () {
     RustLib.resetForTesting();
-    startEngine();
+    startEngine(config: null);
     final oversized = 32 * 1024 * 1024; // 32MB > 16MB arena capacity
     final buf = allocateEngineBuffer(sizeBytes: oversized);
     if (buf.length != oversized) throw 'Expected buffer size $oversized';
