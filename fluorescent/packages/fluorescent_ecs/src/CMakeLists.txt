@@ -3,7 +3,7 @@
 # the plugin to fail to compile for some customers of the plugin.
 cmake_minimum_required(VERSION 3.10)
 
-project(fluorescent_ecs_library VERSION 0.0.1 LANGUAGES C)
+project(fluorescent_ecs_library VERSION 0.0.1 LANGUAGES C CXX)
 
 add_library(fluorescent_ecs SHARED
   "fluorite_ecs_core.cpp"
