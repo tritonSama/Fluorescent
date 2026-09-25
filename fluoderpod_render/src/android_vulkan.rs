@@ -65,4 +65,18 @@ pub extern "system" fn Java_com_fluorescent_vulkan_FluorescentVulkanPlugin_destr
     }
 }
 
-// Just ensuring the JNI export builds nicely and handles the ash stub
+#[no_mangle]
+pub extern "system" fn Java_com_fluorescent_vulkan_FluorescentVulkanPlugin_createSurfaceFromWindow(
+    env: *mut jni::sys::JNIEnv,
+    _class: jni::objects::JClass,
+    surface: jni::objects::JObject,
+) -> jlong {
+    use ndk::native_window::NativeWindow;
+    let window = unsafe {
+        NativeWindow::from_surface(env as *mut _, surface.into_raw())
+    };
+    match window {
+        Some(w) => w.ptr().as_ptr() as jlong,
+        None => 0,
+    }
+}
