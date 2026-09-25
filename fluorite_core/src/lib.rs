@@ -10,6 +10,8 @@
 
 pub mod allocator;
 pub mod api;
+pub mod ecs;
+pub mod ffi;
 pub mod frb_generated;
 pub mod jni;
 pub mod rendering;
