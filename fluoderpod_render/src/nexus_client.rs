@@ -1,12 +1,17 @@
-use tokio::net::TcpStream;
-use tokio_tungstenite::{connect_async, WebSocketStream, MaybeTlsStream};
 use serde::{Deserialize, Serialize};
+use tokio::net::TcpStream;
+use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum RailMessage {
-    Telemetry { payload: String },
-    TensorDiff { diff_buffer: String, node_id: String },
+    Telemetry {
+        payload: String,
+    },
+    TensorDiff {
+        diff_buffer: String,
+        node_id: String,
+    },
     Ping,
 }
 
@@ -20,7 +25,9 @@ impl NexusClient {
         Self {}
     }
 
-    pub async fn connect(url: &str) -> Result<WebSocketStream<MaybeTlsStream<TcpStream>>, Box<dyn std::error::Error>> {
+    pub async fn connect(
+        url: &str,
+    ) -> Result<WebSocketStream<MaybeTlsStream<TcpStream>>, Box<dyn std::error::Error>> {
         let (ws_stream, _) = connect_async(url).await?;
         Ok(ws_stream)
     }
