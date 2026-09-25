@@ -1,5 +1,17 @@
 /// Unified GPU Command Buffer architecture.
 
+#[repr(C)]
+#[derive(Clone, Copy, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct EntityInstance {
+    pub transform: [[f32; 4]; 4], // 64 bytes: 4x4 Model Matrix
+    pub color_tint: [f32; 4],     // 16 bytes: RGBA color tint
+    pub cluster_id: u32,          // 4 bytes: Target geometry cluster index
+    pub flags: u32,               // 4 bytes: Visibility, team, and state flags
+    pub _padding: [f32; 2],       // 8 bytes: Enforces strict 96-byte alignment
+}
+// Compile-time assertion to guarantee the exact 96-byte memory layout
+const _: () = assert!(std::mem::size_of::<EntityInstance>() == 96);
+
 pub struct PipelineManager {
     // Abstracted WGPU Device and Queue
 }
