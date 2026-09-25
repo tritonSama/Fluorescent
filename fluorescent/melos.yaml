@@ -11,3 +11,15 @@ scripts:
   test:
     exec: flutter test
     description: Run all Flutter tests in packages.
+
+  web:serve:
+    exec: jaspr serve -m client
+    packageFilters:
+      scope: fluorescent_jaspr_web
+    description: "Run Jaspr dev server with live reload."
+
+  web:build:
+    exec: jaspr build -m client --output-dir build/web
+    packageFilters:
+      scope: fluorescent_jaspr_web
+    description: "Build Jaspr client SPA bundle (jaspr.js)."
