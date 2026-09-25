@@ -1,15 +1,13 @@
-# BRIEFING — 2026-09-17T20:42:00Z
+# BRIEFING — 2026-09-24T17:56:55Z
 
 ## Mission
-Coordinate and monitor implementation of Phase 1 of the Fluorite AAA Engine: The Rust Core Foundation, Memory Allocators, and the Zero-Copy FFI Bridge to Flutter.
+Coordinate and monitor implementation of Phase 2 (Wave 1) of the Fluorite AAA Engine: PBR & Forward+ Rendering, BVH Spatial Partitioning, Physics Integration, and the Flutter Desktop Editor 3D Viewport.
 
 ## 🔒 My Identity
 - Archetype: sentinel
 - Working directory: c:\Users\blue-\projects\Fluorescent\.agents\sentinel
-- Orchestrator: 3e5e2dab-1a8d-4421-8c4a-2cf0334d1240 (terminated after victory confirmation)
-- Victory Auditor: eb2e35fe-dc0c-4940-9477-6740fc3d58d9 (terminated after victory confirmation)
-- Orchestrator (Phase 1): 038adf4f-48f5-4380-b990-9184dd1cc1fe
-- Victory Auditor (Phase 1): [to be spawned on victory claim]
+- Orchestrator: af0c5366-cb76-4097-aa26-b67f5a46fce1
+- Victory Auditor: [to be spawned on victory claim]
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
@@ -17,36 +15,28 @@ Coordinate and monitor implementation of Phase 1 of the Fluorite AAA Engine: The
 - Must record user requests in ORIGINAL_REQUEST.md
 - Run progress and liveness monitoring crons
 - Clean up all subagents and crons upon confirmed completion
-- USER FREEZE MANDATE: Pause and freeze swarm execution immediately after Milestone 2 passes gate; do NOT proceed to Milestone 3.
+- Pre-flight audit not required for General path
 
 ## User Context
-- **Last user request**: USER COMMAND: Pause and freeze the swarm execution immediately after Milestone 2 (The Zero-Copy FFI Bridge) passes the verification gate. Do not proceed to Milestone 3. Wait for further instructions.
+- **Last user request**: Phase 2 (Wave 1) of Fluorite AAA Engine (PBR & Forward+ Renderer, BVH Spatial Partitioning, Rapier3D Physics Integration, Flutter Editor 3D Viewport & Inspector). Requested full team for concurrent multi-agent execution.
 - **Pending clarifications**: none
-- **Delivered results**:
-  - M1: Custom Memory Allocators (ArenaAllocator, DoubleBufferedFrameAllocator, 1MB buffer API) verified and PASSED (DONE).
-  - M2: Zero-Copy FFI Bridge (flutter_rust_bridge v2, genuine C-ABI symbols, NativeFinalizer lifecycle, 30/30 bridge tests, 51/51 E2E tests) verified and PASSED (DONE).
-  - USER FREEZE EXECUTED: Swarm execution paused and completely frozen. Subagents terminated/idle. Crons cancelled. Awaiting further instructions.
+- **Delivered results**: Phase 1 (M1 & M2) previously delivered. Phase 2 (Wave 1) dispatched to Orchestrator.
 
 ## Project Status
-- **Phase**: FROZEN / PAUSED (Milestones 1 & 2 PASSED; Milestone 3 blocked pending user instructions)
+- **Phase**: in progress
 - **Routing Decision**: General path (`teamwork_preview_orchestrator`)
 - **Active Subagents**:
-  - Orchestrator: `038adf4f-48f5-4380-b990-9184dd1cc1fe` (idle / frozen)
+  - Orchestrator: af0c5366-cb76-4097-aa26-b67f5a46fce1
 - **Active Background Monitoring**:
-  - Crons: none (cancelled upon freeze)
+  - Progress Reporting Cron (`*/8 * * * *`): task-30
+  - Liveness Check Cron (`*/10 * * * *`): task-32
 
 ## Victory Audit Status
-- **Triggered**: no (full phase completion not yet claimed; Milestone 2 freeze active)
+- **Triggered**: no
 - **Verdict**: pending
 - **Retry count**: 0
 
 ## Artifact Index
-- c:\Users\blue-\projects\Fluorescent\.agents\ORIGINAL_REQUEST.md — Authoritative record of user request
+- c:\Users\blue-\projects\Fluorescent\.agents\teamwork\ORIGINAL_REQUEST.md — Authoritative record of user request
 - c:\Users\blue-\projects\Fluorescent\ORIGINAL_REQUEST.md — Root mirror of user request
-- c:\Users\blue-\projects\Fluorescent\.agents\orchestrator_phase1\DISPATCH.md — Dispatch specifications for orchestrator
-- c:\Users\blue-\projects\Fluorescent\.agents\orchestrator_phase1\PROJECT.md — Master project blueprint
-- c:\Users\blue-\projects\Fluorescent\.agents\orchestrator_phase1\GATE_STATUS.md — Gate verdicts (M1 PASS, M2 PASS)
-- c:\Users\blue-\projects\Fluorescent\.agents\orchestrator_phase1\DEAD_ENDS.md — Prohibited patterns and lessons learned
-- c:\Users\blue-\projects\Fluorescent\.agents\orchestrator_phase1\handoff.md — Complete frozen state handoff
-- c:\Users\blue-\projects\Fluorescent\TEST_INFRA.md — E2E test infrastructure
-- c:\Users\blue-\projects\Fluorescent\TEST_READY.md — 51-test E2E readiness report
+- c:\Users\blue-\projects\Fluorescent\.agents\teamwork\orchestrator\ — Orchestrator workspace

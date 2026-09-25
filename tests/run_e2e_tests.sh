@@ -8,7 +8,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_ROOT"
 
 echo "================================================================================"
-echo "        FLUORITE AAA ENGINE PHASE 1 — E2E TEST RUNNER (Bash)                    "
+echo "     FLUORITE AAA ENGINE PHASE 2 (WAVE 1) — E2E TEST RUNNER (Bash)              "
 echo "================================================================================"
 echo ""
 

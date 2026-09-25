@@ -9,7 +9,7 @@ fn test_engine_api_lifecycle_and_allocation() {
     // Before start_engine, verify status handles uninitialized or initialized state
     let initial_status = get_engine_status();
     // After start_engine, engine must be initialized
-    let status = start_engine();
+    let status = start_engine(None);
     assert!(status.is_initialized);
     assert_eq!(status.arena_capacity, DEFAULT_ENGINE_FRAME_CAPACITY);
     assert_eq!(status.status_message, "Fluorite Engine Core Initialized");

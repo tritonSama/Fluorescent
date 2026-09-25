@@ -1,12 +1,12 @@
 // tests/e2e_runner.dart
 //
-// Master E2E Test Runner for the Fluorite AAA Engine Phase 1.
+// Master E2E Test Runner for the Fluorite AAA Engine Phase 2 (Wave 1).
 // Executes all 4 tiers of the systematic testing methodology:
-// - Tier 1: Feature Coverage (20 tests)
-// - Tier 2: Boundary & Corner Cases (21 tests)
-// - Tier 3: Cross-Feature Combinations (5 tests)
-// - Tier 4: Real-World Application Scenarios (5 scenarios)
-// Total: 51 tests.
+// - Tier 1: Feature Coverage (45 tests across Phase 1 & Phase 2 features)
+// - Tier 2: Boundary & Corner Cases (46 tests across Phase 1 & Phase 2 boundaries)
+// - Tier 3: Cross-Feature Combinations (11 pairwise integration tests)
+// - Tier 4: Real-World Application Scenarios (10 high-stress scenarios)
+// Total: 112 tests.
 //
 // Can be executed with: `dart run tests/e2e_runner.dart`
 

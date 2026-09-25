@@ -43,3 +43,13 @@ Fluorescent integrates deeply with Flame to provide a hybrid 2D/3D development e
 The `tools/` directory contains helper scripts to streamline 3D asset generation and scene design:
 * **Blender Sync (`tools/blender_sync/`)**: A Blender Python add-on that connects via WebSockets to the local Fluorescent engine. When a developer modifies an object in Blender, the updates (location, rotation, scale) are streamed live into the running Flutter app without needing a rebuild.
 * **Higgsfield Bridge (`tools/higgsfield_bridge/`)**: A Python API wrapper for Higgsfield AI. It allows the programmatic generation of 3D meshes (e.g., `.gltf`) and seamless textures via HTTP requests, which can then be automatically ingested into the Fluorescent asset pipeline.
+
+## Nexus Protocol (Fluoridians Network)
+When writing network code or connecting external UIs to the Nexus network, note the following details from the `nexus-core` implementation:
+* **WebSocket Endpoint**: `ws://127.0.0.1:9001`
+* **Message Format**: JSON based on a tagged-enum format (`{"type": "MessageName", ...}`).
+* **Supported Message Types**:
+  * `{"type": "Telemetry", "payload": "..."}` (useful for sending arbitrary UI state changes, like slider values)
+  * `{"type": "TensorDiff", "diff_buffer": "...", "node_id": "..."}`
+  * `{"type": "Ping"}`
+* **Network Behavior**: The Execution Rail receives commands from nodes and responds with ACKs (`{"status": "ok", "received": true}`). Clients (like web UIs) must proactively broadcast their own state changes using `Telemetry` messages.

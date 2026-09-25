@@ -134,7 +134,7 @@ class TestHarness {
 
   static void _printHeader() {
     stdout.writeln('================================================================================');
-    stdout.writeln('          FLUORITE AAA ENGINE — PHASE 1 E2E INTEGRATION TEST RUNNER');
+    stdout.writeln('     FLUORITE AAA ENGINE — PHASE 2 (WAVE 1) E2E INTEGRATION TEST RUNNER');
     stdout.writeln('================================================================================');
   }
 
@@ -383,4 +383,17 @@ class _ThrowsMatcher extends Matcher {
   String describe() => 'to throw an exception';
 }
 
+class _CloseToMatcher extends Matcher {
+  final num target;
+  final num delta;
+  _CloseToMatcher(this.target, this.delta);
+  @override
+  bool matches(dynamic actual) => actual is num && (actual - target).abs() <= delta;
+  @override
+  String describe() => 'within $delta of $target';
+}
+
+Matcher closeTo(num target, num delta) => _CloseToMatcher(target, delta);
+
 Matcher throwsA<T>() => _ThrowsMatcher();
+

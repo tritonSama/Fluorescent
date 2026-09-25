@@ -8,7 +8,7 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
 
 Write-Host "================================================================================" -ForegroundColor Cyan
-Write-Host "        FLUORITE AAA ENGINE PHASE 1 — E2E TEST RUNNER (PowerShell)              " -ForegroundColor Cyan
+Write-Host "     FLUORITE AAA ENGINE PHASE 2 (WAVE 1) — E2E TEST RUNNER (PowerShell)        " -ForegroundColor Cyan
 Write-Host "================================================================================" -ForegroundColor Cyan
 Write-Host "Project Root: $ProjectRoot"
 Write-Host ""
@@ -17,7 +17,7 @@ $PassedSuites = 0
 $FailedSuites = 0
 
 # ------------------------------------------------------------------------------
-# 1. Execute Dart E2E Test Suite (51 Tests across Tiers 1-4)
+# 1. Execute Dart E2E Test Suite (112 Tests across Tiers 1-4)
 # ------------------------------------------------------------------------------
 Write-Host "[1/2] Executing Dart E2E Test Suite (Tiers 1-4)..." -ForegroundColor Yellow
 $DartCmd = Get-Command dart -ErrorAction SilentlyContinue
@@ -26,7 +26,7 @@ if ($DartCmd) {
     try {
         & dart run tests/e2e_runner.dart
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "✔ Dart E2E Suite passed (51/51 tests)." -ForegroundColor Green
+            Write-Host "✔ Dart E2E Suite passed (112/112 tests)." -ForegroundColor Green
             $PassedSuites++
         } else {
             Write-Host "✘ Dart E2E Suite failed with exit code $LASTEXITCODE." -ForegroundColor Red

@@ -7,7 +7,7 @@ set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%.."
 
 echo ================================================================================
-echo         FLUORITE AAA ENGINE PHASE 1 — E2E TEST RUNNER (Windows Batch)
+echo     FLUORITE AAA ENGINE PHASE 2 (WAVE 1) — E2E TEST RUNNER (Windows Batch)
 echo ================================================================================
 echo.
 
