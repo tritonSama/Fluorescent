@@ -67,17 +67,24 @@ Deliver Phase 2 (Wave 1) of the Fluorite AAA Engine (PBR & Forward+ Renderer, BV
 | reviewer_m1_2 | teamwork_preview_reviewer | M1: Lighting, Shadows & Memory Parity | in-progress | a18292ee-3c5c-4690-8a48-0cacb315da32 |
 | challenger_m1_1 | teamwork_preview_challenger | M1: Stress Testing Clustered Grid | in-progress | b8f056af-77dc-4548-98b5-b818728ec079 |
 | challenger_m1_2 | teamwork_preview_challenger | M1: Stress Testing Shadows & BRDF | in-progress | 62aeeae3-dee8-4756-8d74-e33e5caf76bd |
-| auditor_m1 | teamwork_preview_auditor | M1: Forensic Integrity Verification | in-progress | 3e51952e-1889-429a-8f21-27e089d25e91 |
+| auditor_m1 | teamwork_preview_auditor | M1: Forensic Integrity Verification | completed | 3e51952e-1889-429a-8f21-27e089d25e91 |
+| worker_m1_fix | teamwork_preview_worker | M1: Data Contract & Stride Alignment Fix | completed | 22bbba60-7ece-4b00-bcc2-62a49fcf0bd0 |
+| reviewer_m1_gate2 | teamwork_preview_reviewer | M1: Gate 2 Verification | in-progress | eece690a-f432-4b45-941f-478bb719fd7c |
+| auditor_m1_gate2 | teamwork_preview_auditor | M1: Gate 2 Forensic Integrity Audit | completed | 3ecba5cf-a0c8-4b66-a533-1da0ed607386 |
+| worker_m2 | teamwork_preview_worker | M2: Spatial Partitioning & BVH Implementation | completed | 8f378f0b-c500-453a-8eb6-cfcc8b462330 |
+| reviewer_m2 | teamwork_preview_reviewer | M2: Spatial Partitioning & BVH Review | completed | 4f9045fd-d8ec-40fc-b86d-091a32938f89 |
+| auditor_m2 | teamwork_preview_auditor | M2: Forensic Integrity Audit | completed | 914b4e3e-87d7-4cd1-9241-de7cde336474 |
+| worker_m3 | teamwork_preview_worker | M3: Physics Integration (Rapier3D) | in-progress | f5e24649-3f37-46ba-8f0f-41c06b2e6ba9 |
 
 ## Succession Status
-- Succession required: no
-- Spawn count: 13 / 16
-- Pending subagents: 1ed8f945-3b1a-44fe-94cd-47a37fcbc093, a18292ee-3c5c-4690-8a48-0cacb315da32, b8f056af-77dc-4548-98b5-b818728ec079, 62aeeae3-dee8-4756-8d74-e33e5caf76bd, 3e51952e-1889-429a-8f21-27e089d25e91
+- Succession required: no (teamwork_preview_orchestrator not an invokable subagent type; parent orchestrator manages lifecycle)
+- Spawn count: 20 / 128 (global limit)
+- Pending subagents: f5e24649-3f37-46ba-8f0f-41c06b2e6ba9
 - Predecessor: none
-- Successor: not yet spawned
+- Successor: none
 
 ## Active Timers
-- Heartbeat cron: af0c5366-cb76-4097-aa26-b67f5a46fce1/task-10
+- Heartbeat cron: af0c5366-cb76-4097-aa26-b67f5a46fce1/task-783
 - Safety timer: none
 - On succession: kill all timers before spawning successor
 - On context truncation: run `manage_task(Action="list")` — re-create if missing

@@ -40,6 +40,7 @@ struct GpuLight {
 struct ClusterRecord {
     offset: u32,
     count: u32,
+    _pad: vec2<u32>,
 };
 
 // ----------------------------------------------------------------------------
@@ -171,12 +172,12 @@ fn cs_main(@builtin(global_invocation_id) global_id: vec3<u32>) {
             for (var k: u32 = 0u; k < visible_light_count; k = k + 1u) {
                 cluster_light_indices[write_offset + k] = local_indices[k];
             }
-            cluster_records[cluster_idx] = ClusterRecord(write_offset, visible_light_count);
+            cluster_records[cluster_idx] = ClusterRecord(write_offset, visible_light_count, vec2<u32>(0u, 0u));
         } else {
             // Buffer overflow fallback: cap lights
-            cluster_records[cluster_idx] = ClusterRecord(0u, 0u);
+            cluster_records[cluster_idx] = ClusterRecord(0u, 0u, vec2<u32>(0u, 0u));
         }
     } else {
-        cluster_records[cluster_idx] = ClusterRecord(0u, 0u);
+        cluster_records[cluster_idx] = ClusterRecord(0u, 0u, vec2<u32>(0u, 0u));
     }
 }

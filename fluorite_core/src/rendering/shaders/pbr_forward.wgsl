@@ -51,6 +51,7 @@ struct GpuLight {
 struct ClusterRecord {
     offset: u32,
     count: u32,
+    _pad: vec2<u32>,
 };
 
 struct PbrMaterialUniforms {

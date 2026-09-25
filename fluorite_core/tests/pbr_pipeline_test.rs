@@ -147,12 +147,22 @@ mod shader_compilation_tests {
             64,
             "GpuLight must be exactly 64 bytes"
         );
+        assert_eq!(
+            core::mem::offset_of!(fluorite_core::rendering::cluster::GpuLight, light_type),
+            44,
+            "GpuLight::light_type must be at byte offset 44"
+        );
 
         // ClusterCell: 16 bytes (offset + count + _pad)
         assert_eq!(
             std::mem::size_of::<fluorite_core::rendering::cluster::ClusterCell>(),
             16,
             "ClusterCell must be exactly 16 bytes"
+        );
+        assert_eq!(
+            core::mem::offset_of!(fluorite_core::rendering::cluster::ClusterCell, _pad),
+            8,
+            "ClusterCell::_pad must be at byte offset 8"
         );
 
         // ShadowUniforms: 80 bytes (64B mat4 + 4x 4B scalars)

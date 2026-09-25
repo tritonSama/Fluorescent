@@ -1,7 +1,7 @@
 # Progress — Project Orchestrator
 
 ## Current Status
-Last visited: 2026-09-24T18:20:10Z
+Last visited: 2026-09-25T03:50:20Z
 
 ## Iteration Status
 Current iteration: 0 / 32
@@ -16,14 +16,18 @@ Current iteration: 0 / 32
 - [x] Step 1: Synthesize survey reports into PROJECT.md (Completed: Architecture, 25-item Feature Inventory, 5 Milestones, Interface Contracts, Code Layout published)
 - [x] Step 2: E2E Testing Track (Completed: TEST_INFRA.md and TEST_READY.md published; 112/112 tests passing across all 4 tiers)
 - [/] Step 3: Execute Implementation Milestones
-  - [/] Milestone 1: PBR & Clustered Forward+ Renderer (Survey & Architecture Complete)
-    - [x] Explorer M1_1: Shaders & PBR Material Pipeline (Conv ID: 7254ee9a-6c18-4b3b-b595-c883e38df545 - Completed)
-    - [x] Explorer M1_2: Lighting & Rust Core Architecture (Conv ID: 4621c1b7-fc72-4e73-9f02-b99311974921 - Completed)
-    - [x] Explorer M1_3: Headless Verification & Tests (Conv ID: 93685e34-cad6-419c-8298-7285555646c6 - Completed)
-    - [x] Worker M1: Implementation & Build Verification (Conv ID: 3b12827a-9d22-4f96-a546-45224eab7574 - Completed)
-    - [/] Gate M1: Reviewers, Challengers & Forensic Auditor Verification (In-Progress)
-  - [ ] Milestone 2: Spatial Partitioning & BVH
-  - [ ] Milestone 3: Rapier3D Physics Integration
+  - [x] Milestone 1: PBR & Clustered Forward+ Renderer (Gate PASSED - Milestone Complete)
+    - [x] Explorer M1_1: Shaders & PBR Material Pipeline (Completed)
+    - [x] Explorer M1_2: Lighting & Rust Core Architecture (Completed)
+    - [x] Explorer M1_3: Headless Verification & Tests (Completed)
+    - [x] Worker M1: Initial Implementation (Completed)
+    - [x] Gate M1 (Iteration 1): Auditor CLEAN, Reviewer/Challenger requested GpuLight & ClusterRecord alignment
+    - [x] Worker M1 (Iteration 2): Remediation applied (Completed)
+    - [x] Gate M1 (Iteration 2): Reviewer APPROVE, Auditor CLEAN -> Gate Result: PASS
+  - [x] Milestone 2: Spatial Partitioning & BVH (Gate PASSED - Milestone Complete)
+    - [x] Worker M2: FlatBvhNode, 16-bin SAH, Culling, Raycast & Benchmark (Completed)
+    - [x] Gate M2: Reviewer APPROVE, Forensic Auditor CLEAN -> Gate Result: PASS
+  - [/] Milestone 3: Rapier3D Physics Integration (In-Progress)
   - [ ] Milestone 4: Flutter Editor 3D Viewport & Inspector
   - [ ] Milestone 5: E2E Integration, Benchmarks (<2ms 10k entities BVH culling), Zero-Copy stability
 - [ ] Step 4: Verification & Handoff to Sentinel

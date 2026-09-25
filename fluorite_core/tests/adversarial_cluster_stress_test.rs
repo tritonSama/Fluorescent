@@ -582,23 +582,36 @@ fn test_adversarial_gpu_light_layout_parity_investigation() {
     let point_offset_44_u32 = u32::from_ne_bytes(point_bytes[44..48].try_into().unwrap());
     let spot_offset_44_u32 = u32::from_ne_bytes(spot_bytes[44..48].try_into().unwrap());
 
-    // CRITICAL OBSERVATION:
-    // If WGSL expects light_type (0 = Dir, 1 = Point, 2 = Spot) at offset 44,
-    // let's check what Rust actually placed at offset 44:
-    let point_offset_44_f32 = f32::from_ne_bytes(point_bytes[44..48].try_into().unwrap());
-    let spot_offset_44_f32 = f32::from_ne_bytes(spot_bytes[44..48].try_into().unwrap());
+    // Verify field offsets match WGSL std430 alignment exactly
+    assert_eq!(core::mem::offset_of!(GpuLight, position_ws), 0);
+    assert_eq!(core::mem::offset_of!(GpuLight, radius), 12);
+    assert_eq!(core::mem::offset_of!(GpuLight, color), 16);
+    assert_eq!(core::mem::offset_of!(GpuLight, intensity), 28);
+    assert_eq!(core::mem::offset_of!(GpuLight, direction_ws), 32);
+    assert_eq!(core::mem::offset_of!(GpuLight, light_type), 44);
+    assert_eq!(core::mem::offset_of!(GpuLight, inner_cone_cos), 48);
+    assert_eq!(core::mem::offset_of!(GpuLight, outer_cone_cos), 52);
+    assert_eq!(core::mem::offset_of!(GpuLight, shadow_map_index), 56);
+    assert_eq!(core::mem::offset_of!(GpuLight, _padding), 60);
 
-    eprintln!(
-        "Layout Parity Diagnostic: Point Light offset 44: u32={}, f32={}",
-        point_offset_44_u32, point_offset_44_f32
+    // Verify byte values match WGSL expectation:
+    // Point light: light_type = 1u (Point)
+    assert_eq!(
+        point_offset_44_u32, 1,
+        "Point light must have light_type 1u at byte offset 44"
     );
-    eprintln!(
-        "Layout Parity Diagnostic: Spot Light offset 44: u32={}, f32={}",
-        spot_offset_44_u32, spot_offset_44_f32
-    );
+    assert_eq!(point_gpu.light_type, 1);
+    assert_eq!(point_gpu.radius, 4.0);
+    assert_eq!(point_gpu.inner_cone_cos, 1.0);
+    assert_eq!(point_gpu.outer_cone_cos, 1.0);
 
-    // Notice: point_offset_44_f32 is 1.0 (from direction_inner[3]),
-    // which as u32 is 0x3F800000 = 1,065,353,216 != 1u (Point)!
-    // Spot offset 44 is inner_angle.cos() != 2u (Spot)!
-    // This empirically proves the layout discrepancy.
+    // Spot light: light_type = 2u (Spot)
+    assert_eq!(
+        spot_offset_44_u32, 2,
+        "Spot light must have light_type 2u at byte offset 44"
+    );
+    assert_eq!(spot_gpu.light_type, 2);
+    assert_eq!(spot_gpu.radius, 8.0);
+    assert!((spot_gpu.inner_cone_cos - 0.3_f32.cos()).abs() < 1e-6);
+    assert!((spot_gpu.outer_cone_cos - 0.6_f32.cos()).abs() < 1e-6);
 }

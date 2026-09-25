@@ -21,6 +21,7 @@ glam = "0.29"
 bellman = "0.14"
 rand = "0.8"
 rapier3d = "0.17"
+nalgebra = "0.32"
 [profile.dev]
 opt-level = 0
 debug = true

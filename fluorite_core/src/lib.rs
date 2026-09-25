@@ -14,8 +14,10 @@ pub mod ecs;
 pub mod ffi;
 pub mod frb_generated;
 pub mod jni;
+pub mod physics;
 pub mod rendering;
 pub mod servers;
+pub mod spatial;
 
 pub use allocator::{
     AllocError, ArenaAllocator, CustomAllocator, DoubleBufferedFrameAllocator, ONE_MB,
@@ -28,4 +30,11 @@ pub use api::{
     DEFAULT_ENGINE_FRAME_CAPACITY,
 };
 
+pub use physics::{CharacterController, CharacterMovementResult, PhysicsWorld, StepStats};
+
 pub use rendering::{QualityTier, Renderer};
+
+pub use spatial::{
+    Aabb, FlatBvh, FlatBvhNode, Frustum, FrustumCullingStats, FrustumIntersection, Plane, Ray,
+    RayHit,
+};

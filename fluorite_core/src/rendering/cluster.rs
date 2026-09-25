@@ -89,15 +89,20 @@ pub struct SpotLight {
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct GpuLight {
-    /// xyz: World position, w: Attenuation radius / range
-    pub position_range: [f32; 4],
-    /// xyz: Linear RGB color, w: Luminous intensity (cd / lm)
-    pub color_intensity: [f32; 4],
-    /// xyz: Unit light direction (for spot lights), w: cos(inner_angle)
-    pub direction_inner: [f32; 4],
-    /// x: cos(outer_angle), y: Light type (0.0 = Point, 1.0 = Spot), zw: padding
-    pub params: [f32; 4],
+    pub position_ws: [f32; 3],
+    pub radius: f32,
+    pub color: [f32; 3],
+    pub intensity: f32,
+    pub direction_ws: [f32; 3],
+    pub light_type: u32, // 0 = Directional, 1 = Point, 2 = Spot
+    pub inner_cone_cos: f32,
+    pub outer_cone_cos: f32,
+    pub shadow_map_index: i32,
+    pub _padding: u32,
 }
+
+const _: () = assert!(std::mem::size_of::<GpuLight>() == 64);
+const _: () = assert!(core::mem::offset_of!(GpuLight, light_type) == 44);
 
 /// Individual cluster grid cell metadata for GPU shader indexing.
 ///
@@ -282,11 +287,22 @@ impl ClusterLightGrid {
 
             // GPU uniform packing
             gpu_lights.push(GpuLight {
-                position_range: [light.position.x, light.position.y, light.position.z, light.radius],
-                color_intensity: [light.color.x, light.color.y, light.color.z, light.intensity],
-                direction_inner: [0.0, 0.0, 0.0, 1.0],
-                params: [1.0, 0.0, 0.0, 0.0], // light_type = 0.0 (Point)
+                position_ws: [light.position.x, light.position.y, light.position.z],
+                radius: light.radius,
+                color: [light.color.x, light.color.y, light.color.z],
+                intensity: light.intensity,
+                direction_ws: [0.0, 0.0, 0.0],
+                light_type: 1, // Point light
+                inner_cone_cos: 1.0,
+                outer_cone_cos: 1.0,
+                shadow_map_index: -1,
+                _padding: 0,
             });
+
+            // Early guard against non-positive radius
+            if light.radius <= 0.0 {
+                continue;
+            }
 
             // Fast depth-range culling
             let min_z = z_depth - light.radius;
@@ -322,16 +338,22 @@ impl ClusterLightGrid {
             let z_depth = -view_pos.z;
 
             gpu_lights.push(GpuLight {
-                position_range: [spot.position.x, spot.position.y, spot.position.z, spot.range],
-                color_intensity: [spot.color.x, spot.color.y, spot.color.z, spot.intensity],
-                direction_inner: [
-                    spot.direction.x,
-                    spot.direction.y,
-                    spot.direction.z,
-                    spot.inner_angle.cos(),
-                ],
-                params: [spot.outer_angle.cos(), 1.0, 0.0, 0.0], // light_type = 1.0 (Spot)
+                position_ws: [spot.position.x, spot.position.y, spot.position.z],
+                radius: spot.range,
+                color: [spot.color.x, spot.color.y, spot.color.z],
+                intensity: spot.intensity,
+                direction_ws: [spot.direction.x, spot.direction.y, spot.direction.z],
+                light_type: 2, // Spot light
+                inner_cone_cos: spot.inner_angle.cos(),
+                outer_cone_cos: spot.outer_angle.cos(),
+                shadow_map_index: -1,
+                _padding: 0,
             });
+
+            // Early guard against non-positive range
+            if spot.range <= 0.0 {
+                continue;
+            }
 
             // Conservative bounding sphere centered at spot origin with radius `range`
             let min_z = z_depth - spot.range;
@@ -481,5 +503,28 @@ mod tests {
         for &l_idx in &output.light_indices {
             assert!((l_idx as usize) < 1024);
         }
+
+        assert_eq!(output.gpu_lights[0].light_type, 1);
+        assert_eq!(output.gpu_lights[0].radius, 4.0);
+    }
+
+    #[test]
+    fn test_gpu_light_layout_and_offsets() {
+        assert_eq!(std::mem::size_of::<GpuLight>(), 64);
+        assert_eq!(core::mem::offset_of!(GpuLight, position_ws), 0);
+        assert_eq!(core::mem::offset_of!(GpuLight, radius), 12);
+        assert_eq!(core::mem::offset_of!(GpuLight, color), 16);
+        assert_eq!(core::mem::offset_of!(GpuLight, intensity), 28);
+        assert_eq!(core::mem::offset_of!(GpuLight, direction_ws), 32);
+        assert_eq!(core::mem::offset_of!(GpuLight, light_type), 44);
+        assert_eq!(core::mem::offset_of!(GpuLight, inner_cone_cos), 48);
+        assert_eq!(core::mem::offset_of!(GpuLight, outer_cone_cos), 52);
+        assert_eq!(core::mem::offset_of!(GpuLight, shadow_map_index), 56);
+        assert_eq!(core::mem::offset_of!(GpuLight, _padding), 60);
+
+        assert_eq!(std::mem::size_of::<ClusterCell>(), 16);
+        assert_eq!(core::mem::offset_of!(ClusterCell, offset), 0);
+        assert_eq!(core::mem::offset_of!(ClusterCell, count), 4);
+        assert_eq!(core::mem::offset_of!(ClusterCell, _pad), 8);
     }
 }

@@ -40,8 +40,8 @@ Fluorite combines a high-performance Rust core (`fluorite_core`, `fluoderpod_ren
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | PBR & Clustered Forward+ Renderer | Features 1-6 (Cargo fixes, Cook-Torrance BRDF, WGSL shaders, Clustered Forward+ 1024 lights, Directional Shadows, PBR tests) | None | PLANNED |
-| M2 | Spatial Partitioning & BVH | Features 7-12 (FlatBvhNode, 16-bin SAH, SIMD Raycasting, Frustum Culling, Broadphase, 10k entities <2ms benchmark) | M1 | PLANNED |
+| M1 | PBR & Clustered Forward+ Renderer | Features 1-6 (Cargo fixes, Cook-Torrance BRDF, WGSL shaders, Clustered Forward+ 1024 lights, Directional Shadows, PBR tests) | None | DONE |
+| M2 | Spatial Partitioning & BVH | Features 7-12 (FlatBvhNode, 16-bin SAH, SIMD Raycasting, Frustum Culling, Broadphase, 10k entities <2ms benchmark) | M1 | DONE |
 | M3 | Physics Integration (Rapier3D) | Features 13-17 (Rapier3D PhysicsWorld, 60Hz accumulator, KCC, Zero-copy transform sync, Physics unit tests) | M2 | PLANNED |
 | M4 | Flutter Editor 3D Viewport & Inspector | Features 18-23 (Desktop scaffolding, Dockable Shell, Scene Outliner, Entity Inspector, Viewport, Camera, Texture FFI) | M1, M3 | PLANNED |
 | M5 | E2E Integration & Benchmarks | Features 24-25 (1000-frame memory stability test, <2ms BVH benchmark validation, full cargo test verification) | M1, M2, M3, M4 | PLANNED |
