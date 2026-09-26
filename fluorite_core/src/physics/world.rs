@@ -26,7 +26,7 @@ pub struct PhysicsWorld {
     /// Simulation island manager for sleep and wake states.
     pub island_manager: IslandManager,
     /// Broad phase collision detection.
-    pub broad_phase: BroadPhaseMultiSap,
+    pub broad_phase: BroadPhase,
     /// Narrow phase collision detection and contact manifold computation.
     pub narrow_phase: NarrowPhase,
     /// Collection of all active rigid bodies.
@@ -73,7 +73,7 @@ impl PhysicsWorld {
             integration_parameters,
             physics_pipeline: PhysicsPipeline::new(),
             island_manager: IslandManager::new(),
-            broad_phase: BroadPhaseMultiSap::new(),
+            broad_phase: BroadPhase::new(),
             narrow_phase: NarrowPhase::new(),
             rigid_body_set: RigidBodySet::new(),
             collider_set: ColliderSet::new(),
@@ -133,12 +133,14 @@ impl PhysicsWorld {
             &mut self.impulse_joint_set,
             &mut self.multibody_joint_set,
             &mut self.ccd_solver,
-            &physics_hooks,
+            Some(&mut self.query_pipeline),
+            &event_handler,
             &event_handler,
         );
 
         // Synchronize the query pipeline with updated rigid bodies and colliders
-        self.query_pipeline.update(&self.rigid_body_set, &self.collider_set);
+        self.query_pipeline
+            .update(&self.rigid_body_set, &self.collider_set);
     }
 
     /// Inserts a rigid body into the simulation and returns its handle.
@@ -147,8 +149,13 @@ impl PhysicsWorld {
     }
 
     /// Inserts a collider attached to a parent rigid body.
-    pub fn insert_collider(&mut self, collider: Collider, parent: RigidBodyHandle) -> ColliderHandle {
-        self.collider_set.insert_with_parent(collider, parent, &mut self.rigid_body_set)
+    pub fn insert_collider(
+        &mut self,
+        collider: Collider,
+        parent: RigidBodyHandle,
+    ) -> ColliderHandle {
+        self.collider_set
+            .insert_with_parent(collider, parent, &mut self.rigid_body_set)
     }
 
     /// Inserts a standalone collider (e.g. static environment) not attached to any rigid body.

@@ -1,6 +1,6 @@
-use super::components::grid::GridPosition;
-use super::components::player::{PlayerId, PlayerStats};
-use super::components::pieces::Piece;
+use crate::ecs::components::grid::GridPosition;
+use crate::ecs::components::pieces::Piece;
+use crate::ecs::components::player::{PlayerId, PlayerStats};
 use std::collections::HashMap;
 
 pub struct MovementSystem;
@@ -25,7 +25,7 @@ impl MovementSystem {
         }
 
         let piece = pieces.remove(&from).ok_or("No piece at source location")?;
-        
+
         if piece.owner != player.id {
             pieces.insert(from, piece); // Put it back
             return Err("Piece does not belong to current player");
@@ -33,7 +33,7 @@ impl MovementSystem {
 
         player.movement_points -= 1;
         pieces.insert(to, piece);
-        
+
         Ok(())
     }
 }

@@ -5,18 +5,18 @@
 //! - CameraUniforms: 320 bytes (16-byte aligned, explicit 4-byte padding at offset 300).
 //! - Cook-Torrance microfacet BRDF reference implementation for CPU validation and software tests.
 
-use std::f32::consts::PI;
 use glam::Vec3;
+use std::f32::consts::PI;
 
 // ----------------------------------------------------------------------------
 // Material Bitflags
 // ----------------------------------------------------------------------------
-pub const MATERIAL_FLAG_HAS_ALBEDO_MAP: u32             = 1 << 0; // 0x01
-pub const MATERIAL_FLAG_HAS_NORMAL_MAP: u32             = 1 << 1; // 0x02
+pub const MATERIAL_FLAG_HAS_ALBEDO_MAP: u32 = 1 << 0; // 0x01
+pub const MATERIAL_FLAG_HAS_NORMAL_MAP: u32 = 1 << 1; // 0x02
 pub const MATERIAL_FLAG_HAS_METALLIC_ROUGHNESS_MAP: u32 = 1 << 2; // 0x04
-pub const MATERIAL_FLAG_HAS_OCCLUSION_MAP: u32          = 1 << 3; // 0x08
-pub const MATERIAL_FLAG_HAS_EMISSIVE_MAP: u32           = 1 << 4; // 0x10
-pub const MATERIAL_FLAG_ALPHA_BLEND: u32                = 1 << 5; // 0x20
+pub const MATERIAL_FLAG_HAS_OCCLUSION_MAP: u32 = 1 << 3; // 0x08
+pub const MATERIAL_FLAG_HAS_EMISSIVE_MAP: u32 = 1 << 4; // 0x10
+pub const MATERIAL_FLAG_ALPHA_BLEND: u32 = 1 << 5; // 0x20
 
 /// PBR Material parameters packed for WebGPU uniform buffer upload.
 ///

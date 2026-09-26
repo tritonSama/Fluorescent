@@ -4,10 +4,12 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
-import '../lib.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `CStringPtr`, `EngineStatusC`, `SharedFrameBuffer`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `from`
+// These functions are ignored (category: IgnoreBecauseOwnerTyShouldIgnore): `is_empty`, `len`, `new`, `ptr_address`, `read_byte`, `write_byte`
 
 /// Initializes the Fluorite Engine native subsystems and custom allocators.
 EngineStatus startEngine({EngineConfig? config}) =>
@@ -42,72 +44,6 @@ bool verifyBufferSentinels({required List<int> buffer}) =>
 Future<bool> verifyBufferSentinelsSlice({required List<int> buffer}) =>
     RustLib.instance.api
         .crateApiEngineVerifyBufferSentinelsSlice(buffer: buffer);
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<CStringPtr>>
-abstract class CStringPtr implements RustOpaqueInterface {
-  ConstCChar get field0;
-
-  set field0(ConstCChar field0);
-}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<EngineStatusC>>
-abstract class EngineStatusC implements RustOpaqueInterface {
-  CStringPtr get allocatorName;
-
-  BigInt get arenaCapacity;
-
-  CStringPtr get coreVersion;
-
-  BigInt get frameIndex;
-
-  bool get isInitialized;
-
-  CStringPtr get statusMessage;
-
-  BigInt get totalMemoryAllocated;
-
-  set allocatorName(CStringPtr allocatorName);
-
-  set arenaCapacity(BigInt arenaCapacity);
-
-  set coreVersion(CStringPtr coreVersion);
-
-  set frameIndex(BigInt frameIndex);
-
-  set isInitialized(bool isInitialized);
-
-  set statusMessage(CStringPtr statusMessage);
-
-  set totalMemoryAllocated(BigInt totalMemoryAllocated);
-}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SharedFrameBuffer>>
-abstract class SharedFrameBuffer implements RustOpaqueInterface {
-  Uint8List get data;
-
-  set data(Uint8List data);
-
-  /// Returns true if the buffer has zero length.
-  bool isEmpty();
-
-  /// Length of the buffer in bytes.
-  BigInt len();
-
-  /// Creates a new `SharedFrameBuffer` of `size_bytes`.
-  ///
-  /// Initializes with 0xDEADBEEF test header if size >= 4.
-  factory SharedFrameBuffer({required BigInt sizeBytes}) => RustLib.instance.api
-      .crateApiEngineSharedFrameBufferNew(sizeBytes: sizeBytes);
-
-  /// Raw native memory pointer address as `usize` for direct Dart FFI `Pointer.fromAddress()`.
-  BigInt ptrAddress();
-
-  /// Reads the byte at the specified offset with safe bounds checking.
-  int readByte({required BigInt offset});
-
-  /// Writes a byte at the specified offset with safe bounds checking.
-  void writeByte({required BigInt offset, required int value});
-}
 
 class EngineConfig {
   final int resolutionWidth;

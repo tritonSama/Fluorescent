@@ -17,10 +17,9 @@ pub use rapier3d::na as nalgebra;
 
 // Re-export common Rapier types and builders for consumer convenience
 pub use rapier3d::prelude::{
-    ActiveCollisionTypes, ActiveEvents, Ball, BroadPhaseMultiSap, CCDSolver, Capsule,
-    Collider, ColliderBuilder, ColliderHandle, ColliderSet, Cone, Cuboid, Cylinder,
-    DefaultBroadPhase, ImpulseJointHandle, ImpulseJointSet, IntegrationParameters,
-    IslandManager, KinematicCharacterController, MultibodyJointHandle, MultibodyJointSet,
-    NarrowPhase, PhysicsPipeline, QueryFilter, QueryPipeline, Real, RigidBody,
-    RigidBodyActivation, RigidBodyBuilder, RigidBodyHandle, RigidBodySet, RigidBodyType,
+    ActiveCollisionTypes, ActiveEvents, Ball, CCDSolver, Capsule, Collider, ColliderBuilder,
+    ColliderHandle, ColliderSet, Cone, Cuboid, Cylinder, ImpulseJointHandle, ImpulseJointSet,
+    IntegrationParameters, IslandManager, MultibodyJointHandle, MultibodyJointSet, NarrowPhase,
+    PhysicsPipeline, QueryFilter, QueryPipeline, Real, RigidBody, RigidBodyActivation,
+    RigidBodyBuilder, RigidBodyHandle, RigidBodySet, RigidBodyType,
 };

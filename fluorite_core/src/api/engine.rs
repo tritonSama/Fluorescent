@@ -71,7 +71,10 @@ pub fn start_engine(config: Option<EngineConfig>) -> EngineStatus {
 #[flutter_rust_bridge::frb(sync)]
 pub fn draw_wireframe(transform: Vec<f32>, color: u32, thickness: f32) {
     // Stub for rendering primitive shapes in the AAA Engine core.
-    println!("Drawing wireframe with thickness {} and color {:X}", thickness, color);
+    println!(
+        "Drawing wireframe with thickness {} and color {:X}",
+        thickness, color
+    );
 }
 
 /// Allocates a contiguous buffer of `size_bytes` using the custom `ArenaAllocator`.
@@ -153,6 +156,8 @@ pub fn verify_buffer_sentinels_slice(buffer: &[u8]) -> bool {
 /// Persistent shared frame buffer handle exposing raw pointer address (`usize`)
 /// and length for direct Dart `Pointer.asTypedList()` live view.
 #[derive(Debug)]
+#[flutter_rust_bridge::frb(ignore)]
+#[flutter_rust_bridge::frb(ignore)]
 #[flutter_rust_bridge::frb(opaque)]
 pub struct SharedFrameBuffer {
     pub data: Vec<u8>,
@@ -210,12 +215,14 @@ impl SharedFrameBuffer {
 /// C-ABI compatible memory layout for passing EngineStatus across FFI boundaries.
 #[repr(C)]
 #[derive(Debug, Clone)]
-pub struct CStringPtr(pub *const c_char);
+pub struct CStringPtr(pub usize);
 unsafe impl Send for CStringPtr {}
 unsafe impl Sync for CStringPtr {}
 
 #[repr(C)]
 #[derive(Debug, Clone)]
+#[flutter_rust_bridge::frb(ignore)]
+#[flutter_rust_bridge::frb(ignore)]
 pub struct EngineStatusC {
     pub is_initialized: bool,
     pub total_memory_allocated: usize,
@@ -236,14 +243,16 @@ static MSG_NOT_INITIALIZED: &[u8] = b"Fluorite Engine Core Not Initialized\0";
 static VERSION_STR: &[u8] = b"0.1.0\0";
 static ALLOC_NAME: &[u8] = b"FluoriteArenaAllocator_v1\0";
 
+#[flutter_rust_bridge::frb(ignore)]
+#[flutter_rust_bridge::frb(ignore)]
 impl From<&EngineStatus> for EngineStatusC {
     fn from(status: &EngineStatus) -> Self {
         let msg_ptr = if !status.is_initialized {
-            MSG_NOT_INITIALIZED.as_ptr() as *const c_char
+            MSG_NOT_INITIALIZED.as_ptr() as usize
         } else if status.status_message.contains("Initialized") {
-            MSG_INITIALIZED.as_ptr() as *const c_char
+            MSG_INITIALIZED.as_ptr() as usize
         } else {
-            MSG_RUNNING.as_ptr() as *const c_char
+            MSG_RUNNING.as_ptr() as usize
         };
 
         Self {
@@ -252,8 +261,8 @@ impl From<&EngineStatus> for EngineStatusC {
             arena_capacity: status.arena_capacity,
             frame_index: status.frame_index,
             status_message: CStringPtr(msg_ptr),
-            core_version: CStringPtr(VERSION_STR.as_ptr() as *const c_char),
-            allocator_name: CStringPtr(ALLOC_NAME.as_ptr() as *const c_char),
+            core_version: CStringPtr(VERSION_STR.as_ptr() as usize),
+            allocator_name: CStringPtr(ALLOC_NAME.as_ptr() as usize),
         }
     }
 }

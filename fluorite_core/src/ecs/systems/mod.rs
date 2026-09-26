@@ -1,3 +1,3 @@
-pub mod movement;
 pub mod combat;
+pub mod movement;
 pub mod trap;

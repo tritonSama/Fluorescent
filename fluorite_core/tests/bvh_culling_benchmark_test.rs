@@ -53,16 +53,28 @@ fn test_bvh_frustum_culling_benchmark_10k_entities() {
     println!("BVH Frustum Culling Benchmark (10,000 Entities):");
     println!("  BVH Node Count: {}", bvh.nodes.len());
     println!("  BVH Build Time: {:?}", build_elapsed);
-    println!("  Total Culling Time ({} iterations): {:?}", iterations, elapsed);
+    println!(
+        "  Total Culling Time ({} iterations): {:?}",
+        iterations, elapsed
+    );
     println!("  Average Time per Cull: {:?}", avg_time);
     println!("  Visible Entities Count: {}", visible.len());
     println!("  Nodes Tested: {}", stats.nodes_tested);
-    println!("  Subtrees Inherited Inside: {}", stats.subtrees_inherited_inside);
-    println!("  Subtrees Pruned Outside: {}", stats.subtrees_pruned_outside);
+    println!(
+        "  Subtrees Inherited Inside: {}",
+        stats.subtrees_inherited_inside
+    );
+    println!(
+        "  Subtrees Pruned Outside: {}",
+        stats.subtrees_pruned_outside
+    );
     println!("  Target Threshold: < 2.0ms");
     println!("============================================================");
 
-    assert!(!visible.is_empty(), "Some entities must be visible in frustum");
+    assert!(
+        !visible.is_empty(),
+        "Some entities must be visible in frustum"
+    );
     assert!(
         visible.len() < num_entities,
         "Culling must prune off-screen entities"

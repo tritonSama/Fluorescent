@@ -12,7 +12,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 thiserror = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-flutter_rust_bridge = "2.13.0"
+flutter_rust_bridge = "=2.13.0"
 execution-rail = { path = "../third_party/tithX/nexus-core/execution-rail" }
 mobile-vault-sdk = { path = "../third_party/tithX/nexus-core/mobile-vault-sdk" }
 wgpu = "0.20"
@@ -22,6 +22,8 @@ bellman = "0.14"
 rand = "0.8"
 rapier3d = "0.17"
 nalgebra = "0.32"
+hecs = "0.11.1"
+bincode = "1.3.3"
 [profile.dev]
 opt-level = 0
 debug = true
@@ -31,3 +33,7 @@ opt-level = 3
 lto = "thin"
 codegen-units = 1
 panic = "unwind"
+
+[dependencies.rust_core]
+path = "../third_party/tithX/rust_core"
+default-features = false
