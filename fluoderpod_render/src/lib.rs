@@ -171,3 +171,43 @@ pub mod headless_render;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod video_encoder;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use unified_pipeline::PackedEntityInstance;
+
+    #[test]
+    fn test_packed_entity_instance_layout_48_bytes() {
+        assert_eq!(std::mem::size_of::<PackedEntityInstance>(), 48);
+        assert_eq!(std::mem::align_of::<PackedEntityInstance>(), 4);
+
+        let instance = PackedEntityInstance {
+            position: [1.0, 2.0, 3.0],
+            sphere_radius: 5.0,
+            rotation_quat: [0.0, 0.0, 0.0, 1.0],
+            scale: [1.0, 1.0, 1.0],
+            cluster_and_flags: 0x1234_5678,
+        };
+
+        let bytes = bytemuck::bytes_of(&instance);
+        assert_eq!(bytes.len(), 48);
+
+        let casted: &PackedEntityInstance = bytemuck::from_bytes(bytes);
+        assert_eq!(*casted, instance);
+    }
+
+    #[test]
+    fn test_batch_byte_length_validation() {
+        let valid_single = vec![0u8; 48];
+        let valid_double = vec![0u8; 96];
+        let invalid_odd = vec![0u8; 24];
+        let invalid_unaligned = vec![0u8; 50];
+
+        assert_eq!(valid_single.len() % std::mem::size_of::<PackedEntityInstance>(), 0);
+        assert_eq!(valid_double.len() % std::mem::size_of::<PackedEntityInstance>(), 0);
+        assert_ne!(invalid_odd.len() % std::mem::size_of::<PackedEntityInstance>(), 0);
+        assert_ne!(invalid_unaligned.len() % std::mem::size_of::<PackedEntityInstance>(), 0);
+    }
+}
+
