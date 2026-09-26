@@ -160,3 +160,14 @@ pub unsafe extern "C" fn fluoderpod_ingest_batch(
         Err(_) => -2,
     }
 }
+
+#[cfg(not(target_arch = "wasm32"))]
+pub mod webrtc_signalling;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod webrtc_streamer;
+
+#[cfg(not(target_arch = "wasm32"))]
+pub mod headless_render;
+
+#[cfg(not(target_arch = "wasm32"))]
+pub mod video_encoder;
