@@ -1,5 +1,5 @@
 // PLACEHOLDER: Flutter-to-Rust Game Bridge
-// 
+//
 // INSTRUCTIONS FOR IMPLEMENTATION:
 // 1. Expose `GameState` struct containing `HashMap<GridPosition, Piece>` and `HashMap<GridPosition, Trap>` via flutter_rust_bridge.
 // 2. Define standard C-API or flutter_rust_bridge compatible functions:

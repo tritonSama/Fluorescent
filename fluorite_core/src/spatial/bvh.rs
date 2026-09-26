@@ -256,7 +256,8 @@ impl FlatBvh {
 
             let scale = num_bins as f32 / span;
             for item in &items[start..start + count] {
-                let bin_idx = (((item.centroid[axis] - axis_min) * scale) as usize).min(num_bins - 1);
+                let bin_idx =
+                    (((item.centroid[axis] - axis_min) * scale) as usize).min(num_bins - 1);
                 bins_slice[bin_idx].count += 1;
                 bins_slice[bin_idx].aabb = bins_slice[bin_idx].aabb.merge(&item.aabb);
             }
@@ -470,7 +471,8 @@ impl FlatBvh {
 
                 let right_min = Vec3A::from_slice(&right_node.aabb_min);
                 let right_max = Vec3A::from_slice(&right_node.aabb_max);
-                let (right_hit, right_t) = ray.slab_test_with_tmax(right_min, right_max, current_t_max);
+                let (right_hit, right_t) =
+                    ray.slab_test_with_tmax(right_min, right_max, current_t_max);
 
                 match (
                     left_hit && left_t <= current_t_max,

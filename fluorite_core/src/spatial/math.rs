@@ -192,7 +192,10 @@ impl Plane {
     pub fn from_point_and_normal(point: Vec3A, normal: Vec3A) -> Self {
         let n = normal.normalize();
         let d = -n.dot(point);
-        Self { normal: n, distance: d }
+        Self {
+            normal: n,
+            distance: d,
+        }
     }
 
     /// Signed distance from a point to the plane.
@@ -376,9 +379,33 @@ impl Ray {
     #[inline]
     pub fn new(origin: Vec3A, dir: Vec3A, t_min: f32, t_max: f32) -> Self {
         let dir_norm = dir.normalize();
-        let inv_x = if dir_norm.x.abs() > 1e-9 { 1.0 / dir_norm.x } else { if dir_norm.x >= 0.0 { 1e9 } else { -1e9 } };
-        let inv_y = if dir_norm.y.abs() > 1e-9 { 1.0 / dir_norm.y } else { if dir_norm.y >= 0.0 { 1e9 } else { -1e9 } };
-        let inv_z = if dir_norm.z.abs() > 1e-9 { 1.0 / dir_norm.z } else { if dir_norm.z >= 0.0 { 1e9 } else { -1e9 } };
+        let inv_x = if dir_norm.x.abs() > 1e-9 {
+            1.0 / dir_norm.x
+        } else {
+            if dir_norm.x >= 0.0 {
+                1e9
+            } else {
+                -1e9
+            }
+        };
+        let inv_y = if dir_norm.y.abs() > 1e-9 {
+            1.0 / dir_norm.y
+        } else {
+            if dir_norm.y >= 0.0 {
+                1e9
+            } else {
+                -1e9
+            }
+        };
+        let inv_z = if dir_norm.z.abs() > 1e-9 {
+            1.0 / dir_norm.z
+        } else {
+            if dir_norm.z >= 0.0 {
+                1e9
+            } else {
+                -1e9
+            }
+        };
 
         Self {
             origin,
@@ -418,7 +445,7 @@ impl Ray {
         let t_enter = tmin.x.max(tmin.y).max(tmin.z).max(self.t_min);
         let t_exit = tmax.x.min(tmax.y).min(tmax.z).min(current_t_max);
 
-        if t_enter <= t_exit && t_exit >= self.t_min {
+        if t_enter <= t_exit && t_exit >= self.t_min && t_enter < f32::INFINITY {
             (true, t_enter)
         } else {
             (false, f32::INFINITY)

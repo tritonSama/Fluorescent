@@ -192,10 +192,7 @@ pub fn compute_directional_shadow_matrices(
     // v = -0.5 * y + 0.5
     // z = z (in [0, 1])
     let ndc_to_uv = Mat4::from_cols_array(&[
-        0.5,  0.0, 0.0, 0.0,
-        0.0, -0.5, 0.0, 0.0,
-        0.0,  0.0, 1.0, 0.0,
-        0.5,  0.5, 0.0, 1.0,
+        0.5, 0.0, 0.0, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.5, 0.0, 1.0,
     ]);
     let shadow_matrix = ndc_to_uv * light_vp;
 
@@ -214,12 +211,7 @@ pub fn compute_directional_shadow_matrices(
 ///
 /// Prevents shadow acne on steep surfaces while preventing detachment (peter-panning).
 #[inline]
-pub fn calculate_shadow_bias(
-    normal: Vec3,
-    light_dir: Vec3,
-    base_bias: f32,
-    min_bias: f32,
-) -> f32 {
+pub fn calculate_shadow_bias(normal: Vec3, light_dir: Vec3, base_bias: f32, min_bias: f32) -> f32 {
     let cos_theta = normal.dot(-light_dir).clamp(0.0, 1.0);
     let slope = (1.0 - cos_theta).clamp(0.0, 1.0);
     (base_bias * slope).max(min_bias)

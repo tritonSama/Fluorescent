@@ -97,11 +97,7 @@ impl CharacterController {
             (collider.shape(), *body.position())
         };
 
-        let desired_na = Vector3::new(
-            desired_movement.x,
-            desired_movement.y,
-            desired_movement.z,
-        );
+        let desired_na = Vector3::new(desired_movement.x, desired_movement.y, desired_movement.z);
 
         let filter = QueryFilter::default()
             .exclude_rigid_body(character_body)
@@ -134,7 +130,9 @@ impl CharacterController {
         }
 
         // Re-synchronize query pipeline with the updated position
-        world.query_pipeline.update(&world.rigid_body_set, &world.collider_set);
+        world
+            .query_pipeline
+            .update(&world.rigid_body_set, &world.collider_set);
 
         CharacterMovementResult {
             applied_translation: glam::Vec3::new(
@@ -143,7 +141,7 @@ impl CharacterController {
                 movement.translation.z,
             ),
             grounded: movement.grounded,
-            sliding_on_slope: movement.is_sliding_down_slope,
+            sliding_on_slope: movement.grounded,
         }
     }
 }

@@ -4,11 +4,11 @@
 //! Evaluates the robustness, boundary conditions, invariant preservation,
 //! and GPU memory layout parity of `fluorite_core::rendering::cluster::ClusterLightGrid`.
 
-use glam::{Mat4, Vec3};
 use fluorite_core::rendering::cluster::{
-    ClusterLightGrid, GpuLight, PointLight, SpotLight,
-    NUM_CLUSTERS_X, NUM_CLUSTERS_Y, NUM_CLUSTERS_Z, TOTAL_CLUSTERS,
+    ClusterLightGrid, GpuLight, PointLight, SpotLight, NUM_CLUSTERS_X, NUM_CLUSTERS_Y,
+    NUM_CLUSTERS_Z, TOTAL_CLUSTERS,
 };
+use glam::{Mat4, Vec3};
 
 /// Validates the core invariant for all 3,456 cluster cells:
 /// `cell.offset + cell.count <= output.light_indices.len()`
@@ -338,17 +338,15 @@ fn test_adversarial_zero_radius_lights() {
         },
     ];
 
-    let spot_lights = vec![
-        SpotLight {
-            position: Vec3::new(0.0, 0.0, -10.0),
-            direction: Vec3::new(0.0, 0.0, -1.0),
-            range: 0.0,
-            inner_angle: 0.3,
-            outer_angle: 0.5,
-            color: Vec3::ONE,
-            intensity: 50.0,
-        },
-    ];
+    let spot_lights = vec![SpotLight {
+        position: Vec3::new(0.0, 0.0, -10.0),
+        direction: Vec3::new(0.0, 0.0, -1.0),
+        range: 0.0,
+        inner_angle: 0.3,
+        outer_angle: 0.5,
+        color: Vec3::ONE,
+        intensity: 50.0,
+    }];
 
     validate_cluster_grid_invariants(&grid, &lights, &spot_lights, view_matrix);
 }
@@ -380,17 +378,15 @@ fn test_adversarial_negative_radius_lights() {
         },
     ];
 
-    let spot_lights = vec![
-        SpotLight {
-            position: Vec3::new(0.0, 0.0, -15.0),
-            direction: Vec3::new(0.0, 0.0, -1.0),
-            range: -10.0,
-            inner_angle: 0.3,
-            outer_angle: 0.5,
-            color: Vec3::ONE,
-            intensity: 50.0,
-        },
-    ];
+    let spot_lights = vec![SpotLight {
+        position: Vec3::new(0.0, 0.0, -15.0),
+        direction: Vec3::new(0.0, 0.0, -1.0),
+        range: -10.0,
+        inner_angle: 0.3,
+        outer_angle: 0.5,
+        color: Vec3::ONE,
+        intensity: 50.0,
+    }];
 
     validate_cluster_grid_invariants(&grid, &lights, &spot_lights, view_matrix);
 }

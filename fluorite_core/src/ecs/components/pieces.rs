@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use super::player::PlayerId;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Piece {

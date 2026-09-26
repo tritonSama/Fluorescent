@@ -14,11 +14,7 @@ pub fn sync_isometry_to_mat4(iso: &Isometry3<f32>) -> [f32; 16] {
         iso.rotation.k,
         iso.rotation.w,
     );
-    let t = glam::Vec3::new(
-        iso.translation.x,
-        iso.translation.y,
-        iso.translation.z,
-    );
+    let t = glam::Vec3::new(iso.translation.x, iso.translation.y, iso.translation.z);
     glam::Mat4::from_rotation_translation(q, t).to_cols_array()
 }
 

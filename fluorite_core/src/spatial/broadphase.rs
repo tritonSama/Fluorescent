@@ -239,12 +239,7 @@ fn collide_two_trees(
 }
 
 /// Queries all entities in `bvh` whose bounding boxes intersect `query_box`.
-pub fn query_aabb_overlap(
-    bvh: &FlatBvh,
-    query_box: &Aabb,
-    boxes: &[Aabb],
-    out: &mut Vec<u32>,
-) {
+pub fn query_aabb_overlap(bvh: &FlatBvh, query_box: &Aabb, boxes: &[Aabb], out: &mut Vec<u32>) {
     out.clear();
     if bvh.is_empty() || bvh.nodes.is_empty() {
         return;
