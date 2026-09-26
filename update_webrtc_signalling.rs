@@ -1,0 +1,1 @@
+sed -i 's/use serde::{Deserialize, Serialize};/use serde::{Deserialize, Serialize};\nuse webrtc::peer_connection::sdp::session_description::RTCSessionDescription;\nuse webrtc::ice_transport::ice_candidate::{RTCIceCandidate, RTCIceCandidateInit};/' fluoderpod_render/src/webrtc_signalling.rs
