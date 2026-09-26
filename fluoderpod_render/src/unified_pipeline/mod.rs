@@ -4,24 +4,29 @@ use std::sync::Arc;
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct PackedEntityInstance {
+<<<<<<< Updated upstream
     pub position: [f32; 3],          // 12 bytes (Sphere center)
     pub sphere_radius: f32,          // 4 bytes  (Culling radius)
     pub rotation_quat: [f32; 4],     // 16 bytes (Orientation)
     pub scale: [f32; 3],             // 12 bytes (Non-uniform scale)
     pub cluster_and_flags: u32,      // 4 bytes  (24-bit cluster_id | 8-bit flags)
+=======
     pub position: [f32; 3],      // 12 bytes
     pub sphere_radius: f32,      // 4 bytes
     pub rotation_quat: [f32; 4], // 16 bytes
     pub scale: [f32; 3],         // 12 bytes
     pub cluster_and_flags: u32,  // 4 bytes
+>>>>>>> Stashed changes
 }
 
 // Compile-time assertion to guarantee the exact 48-byte memory layout
 const _: () = assert!(std::mem::size_of::<PackedEntityInstance>() == 48);
+<<<<<<< Updated upstream
 =======
 
 /// Type alias for backward compatibility.
 pub type EntityInstance = PackedEntityInstance;
+>>>>>>> Stashed changes
 
 pub struct PipelineManager {
     pub device: Arc<wgpu::Device>,
