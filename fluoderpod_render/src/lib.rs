@@ -43,16 +43,16 @@ impl FluoderpodRenderer {
         }
     }
 
-    /// Ingests a raw contiguous buffer of 96-byte EntityInstance structs directly from FFI.
+    /// Ingests a raw contiguous buffer of 48-byte PackedEntityInstance structs directly from FFI.
     /// This bypasses CPU-side iteration and prepares the data for compute culling.
     pub fn ingest_fluoderpod_batch(&mut self, raw_entity_data: &[u8]) -> Result<usize, &'static str> {
-        if raw_entity_data.len() % std::mem::size_of::<unified_pipeline::EntityInstance>() != 0 {
-            return Err("Entity buffer byte length is not a multiple of 96 bytes");
+        if raw_entity_data.len() % std::mem::size_of::<unified_pipeline::PackedEntityInstance>() != 0 {
+            return Err("Entity buffer byte length is not a multiple of 48 bytes");
         }
 
         // Validate bytemuck cast without copying
-        let _instances: &[unified_pipeline::EntityInstance] = bytemuck::try_cast_slice(raw_entity_data)
-            .map_err(|_| "Failed to cast entity slice to EntityInstance")?;
+        let _instances: &[unified_pipeline::PackedEntityInstance] = bytemuck::try_cast_slice(raw_entity_data)
+            .map_err(|_| "Failed to cast entity slice to PackedEntityInstance")?;
 
         let instance_count = _instances.len();
         self.num_instances = instance_count as u32;
