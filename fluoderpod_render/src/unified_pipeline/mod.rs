@@ -9,10 +9,19 @@ pub struct PackedEntityInstance {
     pub rotation_quat: [f32; 4],     // 16 bytes (Orientation)
     pub scale: [f32; 3],             // 12 bytes (Non-uniform scale)
     pub cluster_and_flags: u32,      // 4 bytes  (24-bit cluster_id | 8-bit flags)
+    pub position: [f32; 3],      // 12 bytes
+    pub sphere_radius: f32,      // 4 bytes
+    pub rotation_quat: [f32; 4], // 16 bytes
+    pub scale: [f32; 3],         // 12 bytes
+    pub cluster_and_flags: u32,  // 4 bytes
 }
 
 // Compile-time assertion to guarantee the exact 48-byte memory layout
 const _: () = assert!(std::mem::size_of::<PackedEntityInstance>() == 48);
+=======
+
+/// Type alias for backward compatibility.
+pub type EntityInstance = PackedEntityInstance;
 
 pub struct PipelineManager {
     pub device: Arc<wgpu::Device>,
