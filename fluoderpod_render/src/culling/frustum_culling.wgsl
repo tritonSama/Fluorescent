@@ -9,16 +9,13 @@ struct CameraUniforms {
 
 @group(0) @binding(0) var<uniform> camera: CameraUniforms;
 
-struct BoundingVolume {
-    sphere_center: vec3<f32>,
-    sphere_radius: f32,
-    aabb_min: vec3<f32>,
-    _pad0: f32,
-    aabb_max: vec3<f32>,
-    _pad1: f32,
+struct PackedEntityInstance {
+    pos_and_radius: vec4<f32>,     // xyz = position / sphere_center, w = sphere_radius
+    rotation_quat: vec4<f32>,      // xyzw = unit quaternion
+    scale_and_meta: vec4<f32>,     // xyz = scale, w = bitcast<f32>(meta_or_color)
 };
 
-@group(0) @binding(1) var<storage, read> instances: array<BoundingVolume>;
+@group(0) @binding(1) var<storage, read> instances: array<PackedEntityInstance>;
 
 struct DrawIndexedIndirectArgs {
     index_count: u32,
@@ -41,7 +38,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         return;
     }
 
-    let volume = instances[instance_index];
+    let instance = instances[instance_index];
 
     // 1. Frustum Culling
     var is_visible = true;
@@ -49,14 +46,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
         let plane = camera.frustum_planes[i];
 
         // Coarse test: Bounding Sphere
-        if (dot(plane.xyz, volume.sphere_center) + plane.w < -volume.sphere_radius) {
-            is_visible = false;
-            break;
-        }
-
-        // Fine test: AABB
-        let p_vertex = select(volume.aabb_min, volume.aabb_max, plane.xyz > vec3<f32>(0.0));
-        if (dot(plane.xyz, p_vertex) + plane.w < 0.0) {
+        if (dot(plane.xyz, instance.pos_and_radius.xyz) + plane.w < -instance.pos_and_radius.w) {
             is_visible = false;
             break;
         }

@@ -2,17 +2,17 @@ use std::sync::Arc;
 
 /// Unified GPU Command Buffer architecture.
 #[repr(C)]
-#[derive(Clone, Copy, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct EntityInstance {
-    pub transform: [[f32; 4]; 4], // 64 bytes: 4x4 Model Matrix
-    pub color_tint: [f32; 4],     // 16 bytes: RGBA color tint
-    pub cluster_id: u32,          // 4 bytes: Target geometry cluster index
-    pub flags: u32,               // 4 bytes: Visibility, team, and state flags
-    pub _padding: [f32; 2],       // 8 bytes: Enforces strict 96-byte alignment
+#[derive(Clone, Copy, Debug, PartialEq, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct PackedEntityInstance {
+    pub position: [f32; 3],          // 12 bytes (Sphere center)
+    pub sphere_radius: f32,          // 4 bytes  (Culling radius)
+    pub rotation_quat: [f32; 4],     // 16 bytes (Orientation)
+    pub scale: [f32; 3],             // 12 bytes (Non-uniform scale)
+    pub cluster_and_flags: u32,      // 4 bytes  (24-bit cluster_id | 8-bit flags)
 }
 
-// Compile-time assertion to guarantee the exact 96-byte memory layout
-const _: () = assert!(std::mem::size_of::<EntityInstance>() == 96);
+// Compile-time assertion to guarantee the exact 48-byte memory layout
+const _: () = assert!(std::mem::size_of::<PackedEntityInstance>() == 48);
 
 pub struct PipelineManager {
     pub device: Arc<wgpu::Device>,
